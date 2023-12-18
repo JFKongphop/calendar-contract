@@ -64,6 +64,132 @@ contract Calendar {
   // for invite
   mapping(address => EventParticipation) calendarStore;
 
+  /* INTERNAL FUNCTION */
+  function getEventByAccount (
+    uint256 store_index,
+    string memory month_range,
+    address ownerAccount
+  ) internal view returns(EventStoreRetrived memory eventStoreRetrived) {
+    EventStore storage userEventStore = calendarStore[ownerAccount].eventStores[store_index];
+
+    string memory title = userEventStore.title;
+    address[] storage accounts = userEventStore.eventParticipationAccounts;
+    EventSchedule[] storage eventSchedule = userEventStore.eventSchedule[month_range];
+
+    eventStoreRetrived.title = title;
+    eventStoreRetrived.accounts = accounts;
+    eventStoreRetrived.eventSchedule = eventSchedule;
+
+    return eventStoreRetrived;
+  }
+
+  function getOwnerEventAccount(
+    uint256 store_index,
+    string memory store_title
+  ) internal view returns(address ownerEventAccount) {
+    ParticipationStore[] memory participationStores = calendarStore[msg.sender].participationStores;
+    uint256 lengthOfParticipationStore = participationStores.length;
+    for (uint256 i = 0; i < lengthOfParticipationStore; i++) {
+      if (
+        Library.compareString(participationStores[i].title, store_title)
+        && (participationStores[i].store_index == store_index)
+      ) {
+        ownerEventAccount = participationStores[i].createdBy;
+      }
+    }
+
+    return ownerEventAccount;
+  }
+
+  function addEventParticipationAccount(
+    uint256 store_index,
+    address invitation_account
+  ) internal {
+    calendarStore[msg.sender]
+      .eventStores[store_index]
+      .eventParticipationAccounts
+      .push(invitation_account);
+  }
+
+  function addParticipationStore(
+    uint256 store_index,
+    string memory title,
+    address invitation_account
+  ) internal {
+    calendarStore[invitation_account]
+      .participationStores
+      .push(ParticipationStore(
+        title,
+        store_index,
+        msg.sender
+      ));
+  }
+
+    function deleteParticipationAccount(
+    uint256 store_index,
+    address ownerEventAccount
+  ) internal {
+    address[] storage ownerEventParticipationAccounts = calendarStore[ownerEventAccount]
+      .eventStores[store_index]
+      .eventParticipationAccounts;
+    uint256 lenghtOfParticipationAccount = ownerEventParticipationAccounts.length;
+    address lastIndexAddress = ownerEventParticipationAccounts[lenghtOfParticipationAccount - 1];
+    
+    if (msg.sender == lastIndexAddress) {
+      ownerEventParticipationAccounts.pop();
+    }
+
+    else {
+      for (uint256 i = 0; i < lenghtOfParticipationAccount; i++) {
+        if (msg.sender == ownerEventParticipationAccounts[i]) {
+          ownerEventParticipationAccounts[i] = lastIndexAddress;
+          ownerEventParticipationAccounts.pop();
+          break;
+        }
+      }
+    }
+  }
+
+  function deleteParticipationStore(
+    string memory store_title,
+    address ownerEventAccount
+  ) internal {
+    ParticipationStore[] memory ownerParticipationStores = calendarStore[msg.sender].participationStores;
+    uint256 lengthOfOwnerParticipationStores = ownerParticipationStores.length;
+    
+    if (lengthOfOwnerParticipationStores > 0) {
+      ParticipationStore memory lastIndexParticipationStore = ownerParticipationStores[lengthOfOwnerParticipationStores - 1];
+
+      if (
+        Library.compareString(lastIndexParticipationStore.title, store_title)
+        && (lastIndexParticipationStore.createdBy == ownerEventAccount)
+      ) {
+        calendarStore[msg.sender].participationStores.pop();
+      }
+
+      else {
+        for (uint256 i = 0; i < lengthOfOwnerParticipationStores; i++) {
+          if (
+            Library.compareString(ownerParticipationStores[i].title, store_title)
+            && (ownerParticipationStores[i].createdBy == ownerEventAccount)
+          ) {
+            ownerParticipationStores[lengthOfOwnerParticipationStores - 1] = ownerParticipationStores[i];
+            ownerParticipationStores[i] = lastIndexParticipationStore;
+
+            calendarStore[msg.sender].participationStores.pop();
+            break;
+          }
+        }
+      }
+    }
+
+    else {
+      calendarStore[msg.sender].participationStores.pop();
+    }
+  }
+
+  /* PUBLIC FUNCTION */
+
   function createEventStore(string memory title) public returns(string memory) {
     EventStore[] storage userEventStores = calendarStore[msg.sender].eventStores;
     uint256 lengthOfEventStore = Library.getLengthOfEventStore(userEventStores);
@@ -140,23 +266,6 @@ contract Calendar {
     return eventTitles;
   }
 
-  function getEventByAccount (
-    uint256 store_index,
-    string memory month_range,
-    address ownerAccount
-  ) internal view returns(EventStoreRetrived memory eventStoreRetrived) {
-    EventStore storage userEventStore = calendarStore[ownerAccount].eventStores[store_index];
-
-    string memory title = userEventStore.title;
-    address[] storage accounts = userEventStore.eventParticipationAccounts;
-    EventSchedule[] storage eventSchedule = userEventStore.eventSchedule[month_range];
-
-    eventStoreRetrived.title = title;
-    eventStoreRetrived.accounts = accounts;
-    eventStoreRetrived.eventSchedule = eventSchedule;
-
-    return eventStoreRetrived;
-  }
 
   function getEventStore(
     uint256 store_index,
@@ -167,24 +276,6 @@ contract Calendar {
 
   function getParticipationTitle() public view returns (ParticipationStore[] memory) {
     return calendarStore[msg.sender].participationStores;
-  }
-
-  function getOwnerEventAccount(
-    uint256 store_index,
-    string memory store_title
-  ) internal view returns(address ownerEventAccount) {
-    ParticipationStore[] memory participationStores = calendarStore[msg.sender].participationStores;
-    uint256 lengthOfParticipationStore = participationStores.length;
-    for (uint256 i = 0; i < lengthOfParticipationStore; i++) {
-      if (
-        Library.compareString(participationStores[i].title, store_title)
-        && (participationStores[i].store_index == store_index)
-      ) {
-        ownerEventAccount = participationStores[i].createdBy;
-      }
-    }
-
-    return ownerEventAccount;
   }
 
   function getParticipationStore(
@@ -245,18 +336,18 @@ contract Calendar {
     return "Edit event schedule successfully";
   }
 
-  // // will optimsise not work
-  // function deleteEventStore(uint256 store_index) public returns(string memory) {
-  //   EventStore[] storage userEventStores = calendarStore[msg.sender];
-  //   uint256 lengthOfEventStore = Library.getLengthOfEventStore(userEventStores);
-  //   require(store_index <= lengthOfEventStore - 1, "Invalid store index");
+  function inviteParticipation(
+    uint256 store_index,
+    string memory title,
+    address invitation_account
+  ) public returns(string memory) {
+    // add account to event owner
+    addEventParticipationAccount(store_index, invitation_account);
+    // add event to who is participation
+    addParticipationStore(store_index, title, invitation_account);
 
-  //   delete userEventStores[store_index];
-  //   userEventStores[store_index].deletedStatus = true;
-  //   userEventStores[store_index].title = "deleted";
-
-  //   return "Event store deleted successfully.";
-  // }
+    return "Invitation participation successfully";
+  }
 
   function deleteEventSchedule(
     uint256 store_index,
@@ -287,90 +378,31 @@ contract Calendar {
     return "Event schedule not found";
   }
 
-  function inviteParticipation(
-    uint256 store_index,
-    string memory title,
-    address invitation_account
-  ) public returns(string memory) {
-    address ownerEventAccount = msg.sender;
-    // add participation to owner event
-    calendarStore[ownerEventAccount]
-      .eventStores[store_index]
-      .eventParticipationAccounts
-      .push(invitation_account);
-
-    // add event to account who is added by owner event
-    calendarStore[invitation_account]
-      .participationStores
-      .push(ParticipationStore(
-        title,
-        store_index,
-        ownerEventAccount
-      ));
-
-    return "Invitation participation successfully";
-  }
-
   function leaveParticipationEvent(
     uint256 store_index,
     string memory store_title
   ) public returns(string memory) {
-    // remove at owner event
     address ownerEventAccount = getOwnerEventAccount(store_index, store_title);
-    address[] storage ownerEventParticipationAccounts = calendarStore[ownerEventAccount]
-      .eventStores[store_index]
-      .eventParticipationAccounts;
-    uint256 lenghtOfParticipationAccount = ownerEventParticipationAccounts.length;
-    address lastIndexAddress = ownerEventParticipationAccounts[lenghtOfParticipationAccount - 1];
     
-    if (msg.sender == lastIndexAddress) {
-      ownerEventParticipationAccounts.pop();
-    }
-    
-    else {
-      for (uint256 i = 0; i < lenghtOfParticipationAccount; i++) {
-        if (msg.sender == ownerEventParticipationAccounts[i]) {
-          ownerEventParticipationAccounts[i] = lastIndexAddress;
-          ownerEventParticipationAccounts.pop();
-          break;
-        }
-      }
-    }
+    // remove at owner event
+    deleteParticipationAccount(store_index, ownerEventAccount);
 
     // remove at my participationStores
-    ParticipationStore[] memory ownerParticipationStores = calendarStore[msg.sender].participationStores;
-    uint256 lengthOfOwnerParticipationStores = ownerParticipationStores.length;
-    
-    if (lengthOfOwnerParticipationStores > 0) {
-      ParticipationStore memory lastIndexParticipationStore = ownerParticipationStores[lengthOfOwnerParticipationStores - 1];
-
-      if (
-        Library.compareString(lastIndexParticipationStore.title, store_title)
-        && (lastIndexParticipationStore.createdBy == ownerEventAccount)
-      ) {
-        calendarStore[msg.sender].participationStores.pop();
-      }
-
-      else {
-        for (uint256 i = 0; i < lengthOfOwnerParticipationStores; i++) {
-          if (
-            Library.compareString(ownerParticipationStores[i].title, store_title)
-            && (ownerParticipationStores[i].createdBy == ownerEventAccount)
-          ) {
-            ownerParticipationStores[lengthOfOwnerParticipationStores - 1] = ownerParticipationStores[i];
-            ownerParticipationStores[i] = lastIndexParticipationStore;
-
-            calendarStore[msg.sender].participationStores.pop();
-            break;
-          }
-        }
-      }
-    }
-
-    else {
-      calendarStore[msg.sender].participationStores.pop();
-    }
+    deleteParticipationStore(store_title, ownerEventAccount);
 
     return "Leave event store successfully";
+  }
+
+  function deleteEventScheduleMonth(
+    uint256 store_index,
+    string memory month_range
+  ) public returns(string memory) {
+    EventStore[] storage eventStores = calendarStore[msg.sender].eventStores;
+    uint256 lengthOfEventStore = eventStores.length;
+    require(store_index <= lengthOfEventStore - 1, "Invalid store index");
+
+    delete eventStores[store_index].eventSchedule[month_range];
+
+    return "Delete all event in this month successfully";
   }
 }

@@ -495,5 +495,72 @@ describe('Calendar', async () => {
       expect(expetcedUser2Participation).to.deep.equal(actualResultUser2Leave);
       expect(expectedUser1AccountParticipation).to.deep.equal(actualResultUser1);
     });
-  })
+  });
+
+  describe('Delete event schedule by month range', () => {
+    it('Should return delete event schedule by month range', async () => {
+      await ct.connect(user1).createEventStore('title group 1');
+      await ct.connect(user1).addEventStore(
+        1,
+        1,
+        10,
+        20,
+        'title group 1',
+        "title 1",
+        "test",
+        "0-30"
+      );
+
+      const eventStoresBeforeDelete = await ct.connect(user1).getEventStore(0, '0-30');      
+      const eventScheduleBeforeDelete = eventStoresBeforeDelete[2].map((event: any) => ({
+        day: event[0].toNumber(),
+        id: event[1].toNumber(),
+        start_event: event[2].toNumber(),
+        end_event: event[3].toNumber(),
+        title: event[4],
+        description: event[5]
+      }));
+      const actualResultBeforeDelete = {
+        title: eventStoresBeforeDelete[0],
+        accounts: eventStoresBeforeDelete[1],
+        eventSchedule: eventScheduleBeforeDelete
+      };
+      // console.log('BEFORE DELETE');
+      
+      // console.log(actualResultBeforeDelete)
+
+      // console.log('AFTER DELETE');
+      await ct.connect(user1).deleteEventScheduleMonth(0, '0-30');
+
+      const eventStoresAfterDelete = await ct.connect(user1).getEventStore(0, '0-30');      
+      const eventScheduleAfterDelete = eventStoresAfterDelete[2].map((event: any) => ({
+        day: event[0].toNumber(),
+        id: event[1].toNumber(),
+        start_event: event[2].toNumber(),
+        end_event: event[3].toNumber(),
+        title: event[4],
+        description: event[5]
+      }));
+      const actualResultAfterDelete = {
+        title: eventStoresAfterDelete[0],
+        accounts: eventStoresAfterDelete[1],
+        eventSchedule: eventScheduleAfterDelete
+      };
+
+      const extectedResultAfterDeleted = { 
+        title: 'title group 1', 
+        accounts: [], 
+        eventSchedule: [] 
+      };
+
+      expect(extectedResultAfterDeleted).to.deep.equal(actualResultAfterDelete)
+    });
+
+    it('Should return revert invalid store index', async () => {
+      const rejectWord = 'Arithmetic operation underflowed or overflowed outside of an unchecked block';
+      await expect(
+        ct.connect(user1).deleteEventScheduleMonth(1, '0-30')
+      ).to.be.rejectedWith(rejectWord);
+    });
+  });
 })
