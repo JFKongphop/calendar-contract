@@ -57,36 +57,3 @@ library Library {
     return validEventTimeLine;
   }
 }
-
-    // it('Should revert leave participation invalid store index', async () => {
-    //   const store_index = 0;
-    //   await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
-    //   await ct.connect(user1).addEventStore(
-    //     1,
-    //     10,
-    //     20,
-    //     store_index,
-    //     titleGroup1OfEventStore,
-    //     title1EventSchedule,
-    //     month_range
-    //   );
-
-    //   const invitation_account = await user2.getAddress();
-    //   await ct.connect(user1).inviteParticipation(
-    //     store_index,
-    //     titleGroup1OfEventStore,
-    //     invitation_account
-    //   );
-
-    //   await expect(
-    //     ct.connect(user2).leaveParticipationEvent(
-    //       1, 
-    //       titleGroup1OfEventStore
-    //     )
-    //   ).to.be.revertedWith('Invalid store index');
-
-
-
-    //   // LEAVE
-    //   // await ct.connect(user2).leaveParticipationEvent(1, titleGroup1OfEventStore);
-    // });
