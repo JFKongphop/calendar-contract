@@ -7,12 +7,10 @@ import "./lib/Library.sol";
 
 contract Calendar {
   struct EventSchedule {
-    uint256 day;
     uint256 id;
     uint256 start_event;
     uint256 end_event;
     string title;
-    string description;
   }
 
   // for return title
@@ -59,17 +57,15 @@ contract Calendar {
     ParticipationStore[] participationStores;
   }
 
-  // not invite
-  // mapping(address => EventStore[]) calendarStore; // address => eventStore
-  // for invite
   mapping(address => EventParticipation) calendarStore;
 
-  /* INTERNAL FUNCTION */
-  function getEventByAccount (
+  /* ----- PRIVATE FUNCTION ----- */
+
+  function _getEventByAccount (
     uint256 store_index,
     string memory month_range,
     address ownerAccount
-  ) internal view returns(EventStoreRetrived memory eventStoreRetrived) {
+  ) private view returns(EventStoreRetrived memory eventStoreRetrived) {
     EventStore storage userEventStore = calendarStore[ownerAccount].eventStores[store_index];
 
     string memory title = userEventStore.title;
@@ -83,10 +79,10 @@ contract Calendar {
     return eventStoreRetrived;
   }
 
-  function getOwnerEventAccount(
+  function _getOwnerEventAccount(
     uint256 store_index,
     string memory store_title
-  ) internal view returns(address ownerEventAccount) {
+  ) private view returns(address ownerEventAccount) {
     ParticipationStore[] memory participationStores = calendarStore[msg.sender].participationStores;
     uint256 lengthOfParticipationStore = participationStores.length;
     for (uint256 i = 0; i < lengthOfParticipationStore; i++) {
@@ -101,21 +97,21 @@ contract Calendar {
     return ownerEventAccount;
   }
 
-  function addEventParticipationAccount(
+  function _addEventParticipationAccount(
     uint256 store_index,
     address invitation_account
-  ) internal {
+  ) private {
     calendarStore[msg.sender]
       .eventStores[store_index]
       .eventParticipationAccounts
       .push(invitation_account);
   }
 
-  function addParticipationStore(
+  function _addParticipationStore(
     uint256 store_index,
     string memory title,
     address invitation_account
-  ) internal {
+  ) private {
     calendarStore[invitation_account]
       .participationStores
       .push(ParticipationStore(
@@ -125,10 +121,10 @@ contract Calendar {
       ));
   }
 
-    function deleteParticipationAccount(
+  function _deleteParticipationAccount(
     uint256 store_index,
     address ownerEventAccount
-  ) internal {
+  ) private {
     address[] storage ownerEventParticipationAccounts = calendarStore[ownerEventAccount]
       .eventStores[store_index]
       .eventParticipationAccounts;
@@ -150,10 +146,10 @@ contract Calendar {
     }
   }
 
-  function deleteParticipationStore(
+  function _deleteParticipationStore(
     string memory store_title,
     address ownerEventAccount
-  ) internal {
+  ) private {
     ParticipationStore[] memory ownerParticipationStores = calendarStore[msg.sender].participationStores;
     uint256 lengthOfOwnerParticipationStores = ownerParticipationStores.length;
     
@@ -188,7 +184,7 @@ contract Calendar {
     }
   }
 
-  /* PUBLIC FUNCTION */
+  /* ----- PUBLIC FUNCTION ----- */
 
   function createEventStore(string memory title) public returns(string memory) {
     EventStore[] storage userEventStores = calendarStore[msg.sender].eventStores;
@@ -211,17 +207,25 @@ contract Calendar {
   }
 
   function addEventStore(
-    uint256 day,
     uint256 id,
     uint256 start_event,
     uint256 end_event,
+    uint256 store_index,
     string memory store_title,
     string memory title_event,
-    string memory description,
     string memory month_range
   ) public returns(string memory) {
     EventStore[] storage userEventStores = calendarStore[msg.sender].eventStores;
+    EventSchedule[] storage userEventSchedules = userEventStores[store_index].eventSchedule[month_range];
     uint256 lengthOfEventStore = Library.getLengthOfEventStore(userEventStores);
+    uint256 lengthOfEventSchedule = Library.getLengthOfEventSchedule(userEventSchedules);
+
+    bool validEventTimeLine = Library.checkOverlapEventTimeline(
+      lengthOfEventSchedule,
+      start_event,
+      end_event,
+      userEventSchedules
+    );
 
     for (uint256 i = 0; i < lengthOfEventStore; i++) {
       require(
@@ -230,21 +234,16 @@ contract Calendar {
       );
     }
 
+    require(validEventTimeLine, "Timeline of event is invalid");
+
     EventSchedule memory newEvent = EventSchedule(
-      day,
       id,
       start_event,
       end_event,
-      title_event,
-      description
+      title_event
     );
 
-    for (uint256 i = 0; i < userEventStores.length; i++) {
-      if (Library.compareString(userEventStores[i].title, store_title)) {
-        userEventStores[i].eventSchedule[month_range].push(newEvent);
-        break;
-      }
-    }
+    userEventSchedules.push(newEvent);
 
     return "Add new event store successfully";
   }
@@ -266,12 +265,11 @@ contract Calendar {
     return eventTitles;
   }
 
-
-  function getEventStore(
+  function getEventSchedule(
     uint256 store_index,
     string memory month_range
   ) public view returns(EventStoreRetrived memory eventStoreRetrived) {
-    return getEventByAccount(store_index, month_range, msg.sender);
+    return _getEventByAccount(store_index, month_range, msg.sender);
   }
 
   function getParticipationTitle() public view returns (ParticipationStore[] memory) {
@@ -283,9 +281,9 @@ contract Calendar {
     string memory store_title,
     string memory month_range
   ) public view returns(EventStoreRetrived memory) {
-    address ownerEventAccount = getOwnerEventAccount(store_index, store_title);
+    address ownerEventAccount = _getOwnerEventAccount(store_index, store_title);
     
-    return getEventByAccount(store_index, month_range, ownerEventAccount);
+    return _getEventByAccount(store_index, month_range, ownerEventAccount);
   }
 
   function editEventStoreTitle(
@@ -341,10 +339,14 @@ contract Calendar {
     string memory title,
     address invitation_account
   ) public returns(string memory) {
+    EventStore[] storage userEventStores = calendarStore[msg.sender].eventStores;
+    uint256 lenghtOfEventStore = Library.getLengthOfEventStore(userEventStores);
+    require(store_index <= lenghtOfEventStore - 1, "Invalid store index");
+    
     // add account to event owner
-    addEventParticipationAccount(store_index, invitation_account);
+    _addEventParticipationAccount(store_index, invitation_account);
     // add event to who is participation
-    addParticipationStore(store_index, title, invitation_account);
+    _addParticipationStore(store_index, title, invitation_account);
 
     return "Invitation participation successfully";
   }
@@ -382,13 +384,13 @@ contract Calendar {
     uint256 store_index,
     string memory store_title
   ) public returns(string memory) {
-    address ownerEventAccount = getOwnerEventAccount(store_index, store_title);
+    address ownerEventAccount = _getOwnerEventAccount(store_index, store_title);
     
     // remove at owner event
-    deleteParticipationAccount(store_index, ownerEventAccount);
+    _deleteParticipationAccount(store_index, ownerEventAccount);
 
     // remove at my participationStores
-    deleteParticipationStore(store_title, ownerEventAccount);
+    _deleteParticipationStore(store_title, ownerEventAccount);
 
     return "Leave event store successfully";
   }

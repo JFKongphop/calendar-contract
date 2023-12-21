@@ -17,9 +17,9 @@ const deploy = async () => {
   const calendar = await CalendarContract.deploy()
 
   await calendar.deployTransaction.wait(5);
-
+  
+  console.log('LIBRARY ADDRESS', compareLibrary.address);
   console.log('CALENDAR ADDRESS', calendar.address);
-  console.log('LIBRARY ADDRESS', calendar.address);
 
   try {
     await hre.run('verify:verify', {
