@@ -104,7 +104,7 @@ describe('Calendar', async () => {
       await ct.createEventStore(titleGroup1OfEventStore);
       const id = Date.now();
 
-      await ct.connect(user1).addEventStore(
+      await ct.connect(user1).addEventSchedule(
         id,
         10,
         20,
@@ -147,7 +147,7 @@ describe('Calendar', async () => {
     it('Should return revert dont have event store', async () => {
       const notFoundTitle = 'title group 0';
       await ct.connect(user1).createEventStore(titleGroup1OfEventStore)
-      await expect(ct.connect(user1).addEventStore(
+      await expect(ct.connect(user1).addEventSchedule(
         1,
         10,
         20,
@@ -160,7 +160,7 @@ describe('Calendar', async () => {
 
     it('Should return revert overlap time line of event', async () => {
       await ct.connect(user1).createEventStore(titleGroup1OfEventStore)
-      await ct.connect(user1).addEventStore(
+      await ct.connect(user1).addEventSchedule(
         Date.now(),
         7,
         11,
@@ -171,7 +171,7 @@ describe('Calendar', async () => {
       );
 
       for (let i = 0; i < timelineOverlapTestCases.length; i++) {
-        await expect(ct.connect(user1).addEventStore(
+        await expect(ct.connect(user1).addEventSchedule(
           Date.now(),
           timelineOverlapTestCases[i].start_event,
           timelineOverlapTestCases[i].end_event,
@@ -205,7 +205,7 @@ describe('Calendar', async () => {
     it('Should return event schedule data changded', async () => {
       const scheduleTitleChange = 'title changed 1'
       await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
-      await ct.connect(user1).addEventStore(
+      await ct.connect(user1).addEventSchedule(
         1,
         10,
         20,
@@ -254,7 +254,7 @@ describe('Calendar', async () => {
 
     it('Should return reject with array out of bounds', async () => {
       await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
-      await ct.connect(user1).addEventStore(
+      await ct.connect(user1).addEventSchedule(
         1,
         10,
         20,
@@ -281,7 +281,7 @@ describe('Calendar', async () => {
       await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
 
       for (let i = 0; i < timelineValidTestCases.length; i++) {
-        await ct.connect(user1).addEventStore(
+        await ct.connect(user1).addEventSchedule(
           i + 1,
           timelineValidTestCases[i].start_event,
           timelineValidTestCases[i].end_event,
@@ -339,7 +339,7 @@ describe('Calendar', async () => {
   describe('Invite participation by address', () => {
     it('Should return invitation address', async () => {
       await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
-      await ct.connect(user1).addEventStore(
+      await ct.connect(user1).addEventSchedule(
         1,
         10,
         20,
@@ -400,7 +400,7 @@ describe('Calendar', async () => {
 
     it('Should revert invitation address', async () => {
       await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
-      await ct.connect(user1).addEventStore(
+      await ct.connect(user1).addEventSchedule(
         1,
         10,
         20,
@@ -425,7 +425,7 @@ describe('Calendar', async () => {
     it('Should return leave participation success', async () => {
       const store_index = 0;
       await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
-      await ct.connect(user1).addEventStore(
+      await ct.connect(user1).addEventSchedule(
         1,
         10,
         20,
@@ -524,7 +524,7 @@ describe('Calendar', async () => {
   describe('Delete event schedule by month range', () => {
     it('Should return delete event schedule by month range', async () => {
       await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
-      await ct.connect(user1).addEventStore(
+      await ct.connect(user1).addEventSchedule(
         1,
         10,
         20,
@@ -580,6 +580,64 @@ describe('Calendar', async () => {
       await expect(
         ct.connect(user1).deleteEventScheduleMonth(1, month_range)
       ).to.be.rejectedWith(rejectWord);
+    });
+  });
+
+  describe('Remove account participation by store_index and participation account', () => {
+    it('Should return remove participation account', async () => {
+      const store_index = 0;
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
+      await ct.connect(user1).addEventSchedule(
+        1,
+        10,
+        20,
+        0,
+        titleGroup1OfEventStore,
+        title1EventSchedule,
+        month_range
+      );
+
+      const invitation_account = await user2.getAddress();
+      await ct.connect(user1).inviteParticipation(
+        store_index,
+        titleGroup1OfEventStore,
+        invitation_account
+      );
+
+      const eventsUser1BeforeRemove = await ct.connect(user1).getEventTitle();
+      const actualResultUser1BeforeRemove = eventsUser1BeforeRemove.map((event: any) => ({
+        title: event[0],
+        parctitipationAmount: event[1].toNumber()
+      }));
+      const user2TitleBeforeRemove = await ct.connect(user2).getParticipationTitle();
+      const user2TitleActualBeforeRemove = user2TitleBeforeRemove.map((event: any) => ({
+        title: event[0],
+        store_index: event[1].toNumber(),
+        createdBy: event[2]
+      }));
+      
+      // Remove participation by owner event
+      await ct.connect(user1).removeAccountParticipation(0, invitation_account);
+
+      const eventsUser1AfterRemove = await ct.connect(user1).getEventTitle();
+      const actualResultUser1AfterRemove = eventsUser1AfterRemove.map((event: any) => ({
+        title: event[0],
+        parctitipationAmount: event[1].toNumber()
+      }));
+      const user2TitleAfterRemove = await ct.connect(user2).getParticipationTitle();
+      const user2TitleActuaAfterRemove = user2TitleAfterRemove.map((event: any) => ({
+        title: event[0],
+        store_index: event[1].toNumber(),
+        createdBy: event[2]
+      }));
+
+      const expectedResultEventStoreTitleUser1 = [
+        { title: 'title group 1', parctitipationAmount: 0 }
+      ];
+      const expectedResultParticipationTitleUser2: any[] = [];
+
+      expect(actualResultUser1AfterRemove).to.deep.equal(expectedResultEventStoreTitleUser1);
+      expect(user2TitleActuaAfterRemove).to.deep.equal(expectedResultParticipationTitleUser2)
     });
   });
 })

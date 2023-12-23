@@ -2,7 +2,10 @@
   "name": "hardhat-project",
   "scripts": {
     "test": "npx hardhat test",
-    "comp": "npx hardhat compile"
+    "comp": "npx hardhat compile",
+    "dp-gr": "npx hardhat run --network goerli deploy.ts",
+    "dp-hs": "npx hardhat run --network holesky deploy.ts",
+    "vrf-hs": "npx hardhat verify --network holesky"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",

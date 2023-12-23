@@ -206,7 +206,7 @@ contract Calendar {
     return "Create new event store successfully";
   }
 
-  function addEventStore(
+  function addEventSchedule(
     uint256 id,
     uint256 start_event,
     uint256 end_event,
@@ -394,6 +394,57 @@ contract Calendar {
 
     return "Leave event store successfully";
   }
+
+  function removeAccountParticipation(
+    uint256 store_index,
+    address participationAccount
+    // string memory store_title
+  ) public returns(string memory) {
+    EventStore[] storage userEventStores = calendarStore[msg.sender].eventStores;
+    address[] storage participationAccounts = userEventStores[store_index].eventParticipationAccounts;
+    uint256 lenghtOfParticipationAccount = participationAccounts.length;
+    address lastIndexAddress = participationAccounts[lenghtOfParticipationAccount - 1];
+    if (participationAccount == lastIndexAddress) {
+      participationAccounts.pop();
+    }
+    else {
+      for (uint256 i = 0; i < lenghtOfParticipationAccount; i++) {
+        if (participationAccounts[i] == participationAccount) {
+          participationAccounts[i] = lastIndexAddress;
+          participationAccounts[lenghtOfParticipationAccount - 1] = participationAccount;
+          participationAccounts.pop();
+          break;
+        }
+      }
+    }
+
+    ParticipationStore[] storage participationStores = calendarStore[participationAccount].participationStores;
+    uint256 lenghtOfParticipationStores = participationStores.length;
+    ParticipationStore storage lastIndexParticipationStore = participationStores[lenghtOfParticipationStores - 1];
+    if (
+      (lastIndexParticipationStore.store_index == store_index)
+      && (lastIndexParticipationStore.createdBy == msg.sender)
+    ) {
+      participationStores.pop();
+    }
+    else {
+      for (uint256 i = 0; i < lenghtOfParticipationStores; i++) {
+        if (
+          (participationStores[i].store_index == store_index)
+          && (participationStores[i].createdBy == msg.sender)
+        ) {
+          participationStores[lenghtOfParticipationStores - 1] = participationStores[i];
+          participationStores[i] = lastIndexParticipationStore;
+          participationStores.pop();
+          break;
+        }
+      }
+    }
+    
+    return "Remove account participation successfully";
+  }
+
+
 
   function deleteEventScheduleMonth(
     uint256 store_index,
