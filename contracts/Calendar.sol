@@ -398,7 +398,6 @@ contract Calendar {
   function removeAccountParticipation(
     uint256 store_index,
     address participationAccount
-    // string memory store_title
   ) public returns(string memory) {
     EventStore[] storage userEventStores = calendarStore[msg.sender].eventStores;
     address[] storage participationAccounts = userEventStores[store_index].eventParticipationAccounts;
@@ -444,7 +443,43 @@ contract Calendar {
     return "Remove account participation successfully";
   }
 
+  function removeAllAccountParticipations(uint256 store_index) public returns(string memory) {
+    EventStore[] storage userEventStores = calendarStore[msg.sender].eventStores;
+    uint256 lenghtOfEventStore = Library.getLengthOfEventStore(userEventStores);
+    require(store_index <= lenghtOfEventStore - 1, "Invalid store index");
+    address[] storage participationAccounts = userEventStores[store_index].eventParticipationAccounts;
+    uint256 lenghtOfParticipationAccount = participationAccounts.length;
 
+    for (uint256 i = 0; i < lenghtOfParticipationAccount; i++) {
+      address participationAccount = participationAccounts[i];
+      ParticipationStore[] storage participationStores = calendarStore[participationAccount].participationStores;
+      uint256 lenghtOfParticipationStores = participationStores.length;
+      ParticipationStore storage lastIndexParticipationStore = participationStores[lenghtOfParticipationStores - 1];
+      if (
+        (lastIndexParticipationStore.store_index == store_index)
+        && (lastIndexParticipationStore.createdBy == msg.sender)
+      ) {
+        participationStores.pop();
+      }
+      else {
+        for (uint256 j = 0; j < lenghtOfParticipationStores; ++j) {
+          if (
+            (participationStores[j].store_index == store_index)
+            && (participationStores[j].createdBy == msg.sender)
+          ) {
+            participationStores[lenghtOfParticipationStores - 1] = participationStores[j];
+            participationStores[j] = lastIndexParticipationStore;
+            participationStores.pop();
+            break;
+          }
+        }
+      }
+    }
+
+    userEventStores[store_index].eventParticipationAccounts = new address[](0);
+
+    return "Remove all participation accounts";
+  }
 
   function deleteEventScheduleMonth(
     uint256 store_index,
