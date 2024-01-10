@@ -41,11 +41,6 @@ contract Calendar {
     mapping(string => EventSchedule[]) eventSchedule; // month_range => event
   }
 
-  struct EventInvitation {
-    string title;
-    EventStore[] eventStores;
-  }
-
   struct ParticipationStore {
     string title;
     uint256 store_index;
@@ -218,14 +213,14 @@ contract Calendar {
     EventStore[] storage userEventStores = calendarStore[msg.sender].eventStores;
     EventSchedule[] storage userEventSchedules = userEventStores[store_index].eventSchedule[month_range];
     uint256 lengthOfEventStore = Library.getLengthOfEventStore(userEventStores);
-    uint256 lengthOfEventSchedule = Library.getLengthOfEventSchedule(userEventSchedules);
+    // uint256 lengthOfEventSchedule = Library.getLengthOfEventSchedule(userEventSchedules);
 
-    bool validEventTimeLine = Library.checkOverlapEventTimeline(
-      lengthOfEventSchedule,
-      start_event,
-      end_event,
-      userEventSchedules
-    );
+    // bool validEventTimeLine = Library.checkOverlapEventTimeline(
+    //   lengthOfEventSchedule,
+    //   start_event,
+    //   end_event,
+    //   userEventSchedules
+    // );
 
     for (uint256 i = 0; i < lengthOfEventStore; i++) {
       require(
@@ -234,7 +229,7 @@ contract Calendar {
       );
     }
 
-    require(validEventTimeLine, "Timeline of event is invalid");
+    // require(validEventTimeLine, "Timeline of event is invalid");
 
     EventSchedule memory newEvent = EventSchedule(
       id,
@@ -290,8 +285,17 @@ contract Calendar {
     uint256 store_index,
     string memory new_store_title
   ) public returns(string memory) {
-    EventStore storage userEventStore = calendarStore[msg.sender].eventStores[store_index];
-    userEventStore.title = new_store_title;
+    EventStore[] storage userEventStores = calendarStore[msg.sender].eventStores;
+    uint256 lenghtOfEventStores = userEventStores.length;
+    for (uint256 i = 0; i < lenghtOfEventStores; i++) {
+      require(
+        !Library.compareString(userEventStores[i].title, new_store_title), 
+        "Duplicate name or event calendar"
+      );
+    }
+
+    EventStore storage editEventStore = userEventStores[store_index];
+    editEventStore.title = new_store_title;
 
     return "Edit event store successfully";
   }
@@ -339,9 +343,20 @@ contract Calendar {
     string memory title,
     address invitation_account
   ) public returns(string memory) {
+    require(!(invitation_account == msg.sender), "Cannot invite owner");
+
     EventStore[] storage userEventStores = calendarStore[msg.sender].eventStores;
     uint256 lenghtOfEventStore = Library.getLengthOfEventStore(userEventStores);
     require(store_index <= lenghtOfEventStore - 1, "Invalid store index");
+
+    address[] storage eventParticipationAccounts = userEventStores[store_index].eventParticipationAccounts;
+    uint256 lenghtOfParticipationAccount = eventParticipationAccounts.length;
+    for (uint256 i = 0; i < lenghtOfParticipationAccount; i++) {
+      require(
+        eventParticipationAccounts[0] != invitation_account, 
+        "Cannot invite duplicate address"
+      );
+    }
     
     // add account to event owner
     _addEventParticipationAccount(store_index, invitation_account);

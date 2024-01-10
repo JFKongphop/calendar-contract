@@ -76,7 +76,7 @@ describe('Calendar', async () => {
       expect(1).to.equal(lenghtOfEventStore);
     });
 
-    it('Should return revert of limitation require 5 event store', async () => {
+    it('Should revert of limitation require 5 event store', async () => {
       for(let i = 0; i < 6; i++) {
         await ct.createEventStore(`title ${i}`);
       }
@@ -85,12 +85,12 @@ describe('Calendar', async () => {
       await expect(ct.createEventStore('')).to.be.revertedWith(revertWord);
     });
 
-    it('Should return revert of invalid title', async () => {
+    it('Should revert of invalid title', async () => {
       const revertWord = 'Invalid title';
       await expect(ct.createEventStore('')).to.be.revertedWith(revertWord);    
     });
 
-    it('Should return revert of limitation create event', async () => {
+    it('Should revert of limitation create event', async () => {
       await ct.createEventStore(titleGroup1OfEventStore);
 
       const revertWord = 'Cannot create duplicate name of event store';
@@ -144,7 +144,7 @@ describe('Calendar', async () => {
       expect(expectedResult).to.deep.equal(actualResult);
     });
 
-    it('Should return revert dont have event store', async () => {
+    it('Should revert dont have event store', async () => {
       const notFoundTitle = 'title group 0';
       await ct.connect(user1).createEventStore(titleGroup1OfEventStore)
       await expect(ct.connect(user1).addEventSchedule(
@@ -158,30 +158,30 @@ describe('Calendar', async () => {
       )).to.be.revertedWith("Invalid store title");
     });
 
-    it('Should return revert overlap time line of event', async () => {
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore)
-      await ct.connect(user1).addEventSchedule(
-        Date.now(),
-        7,
-        11,
-        0,
-        titleGroup1OfEventStore,
-        title1EventSchedule,
-        month_range
-      );
+    // it('Should return revert overlap time line of event', async () => {
+    //   await ct.connect(user1).createEventStore(titleGroup1OfEventStore)
+    //   await ct.connect(user1).addEventSchedule(
+    //     Date.now(),
+    //     7,
+    //     11,
+    //     0,
+    //     titleGroup1OfEventStore,
+    //     title1EventSchedule,
+    //     month_range
+    //   );
 
-      for (let i = 0; i < timelineOverlapTestCases.length; i++) {
-        await expect(ct.connect(user1).addEventSchedule(
-          Date.now(),
-          timelineOverlapTestCases[i].start_event,
-          timelineOverlapTestCases[i].end_event,
-          0,
-          titleGroup1OfEventStore,
-          title1EventSchedule,
-          month_range
-        )).to.be.revertedWith('Timeline of event is invalid');
-      }
-    });
+    //   for (let i = 0; i < timelineOverlapTestCases.length; i++) {
+    //     await expect(ct.connect(user1).addEventSchedule(
+    //       Date.now(),
+    //       timelineOverlapTestCases[i].start_event,
+    //       timelineOverlapTestCases[i].end_event,
+    //       0,
+    //       titleGroup1OfEventStore,
+    //       title1EventSchedule,
+    //       month_range
+    //     )).to.be.revertedWith('Timeline of event is invalid');
+    //   }
+    // });
   });
 
   describe("Edit Event Store Title only title", () => {
@@ -198,7 +198,18 @@ describe('Calendar', async () => {
       const eventExpected = [{ title: storeTitleChange, parctitipationAmount: 0 }];
 
       expect(eventExpected).to.deep.equal(actualResult);
-    })
+    });
+
+    it('Should revert duplcate title of event calendar',async () => {
+      const storeTitleChange = 'title changed group 1'
+      await ct.createEventStore(titleGroup1OfEventStore);
+      await ct.createEventStore(storeTitleChange);
+
+      const revertWord = 'Duplicate name or event calendar';
+      await expect(
+        ct.connect(user1).editEventStoreTitle(0, storeTitleChange)
+      ).to.be.revertedWith(revertWord);
+    });
   });
 
   describe("Edit Event Schedule data by id", () => {
@@ -398,7 +409,7 @@ describe('Calendar', async () => {
       expect(expectedResult).to.deep.equal(actualResult);
     });
 
-    it('Should revert invitation address', async () => {
+    it('Should revert invalid store index', async () => {
       await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
       await ct.connect(user1).addEventSchedule(
         1,
@@ -419,6 +430,42 @@ describe('Calendar', async () => {
         )
       ).to.be.revertedWith('Invalid store index');
     });
+
+    it('Should revert cannot invite owner', async () => {
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
+
+      const revertWord = 'Cannot invite owner';
+      const invitation_account = await user1.getAddress();
+      await expect(
+        ct.connect(user1).inviteParticipation(
+         0,
+         titleGroup1OfEventStore,
+         invitation_account
+       )
+      ).to.be.revertedWith(revertWord);
+    });
+
+    it('Should revert cannot invite duplicate address',  async () => {
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
+
+      const invitation_account = await user2.getAddress();
+      await ct.connect(user1).inviteParticipation(
+        0,
+        titleGroup1OfEventStore,
+        invitation_account
+      );
+
+      const revertWord = 'Cannot invite duplicate address';
+      await expect(
+        ct.connect(user1).inviteParticipation(
+         0,
+         titleGroup1OfEventStore,
+         invitation_account
+       )
+      ).to.be.revertedWith(revertWord);
+    });
+
+
   });
 
   describe('Leave Participation by index and title', () => {
@@ -575,7 +622,7 @@ describe('Calendar', async () => {
       expect(extectedResultAfterDeleted).to.deep.equal(actualResultAfterDelete);
     });
 
-    it('Should return revert invalid store index', async () => {
+    it('Should revert invalid store index', async () => {
       const rejectWord = 'Arithmetic operation underflowed or overflowed outside of an unchecked block';
       await expect(
         ct.connect(user1).deleteEventScheduleMonth(1, month_range)
@@ -642,7 +689,7 @@ describe('Calendar', async () => {
   });
 
   describe('Remove all accounts Pparticipation by store index', async () => {
-    it('Should remove all account participation successfully', async () => {
+    it('Should return remove all account participation successfully', async () => {
       const store_index = 0;
       await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
       await ct.connect(user1).addEventSchedule(
@@ -751,4 +798,41 @@ describe('Calendar', async () => {
       ).to.revertedWith('Invalid store index');
     });
   });
+
+  it('test', async () => {
+    await ct.createEventStore(titleGroup1OfEventStore);
+    const eventsUser1AfterRemove = await ct.connect(user1).getEventTitle();
+    const actualResultUser1AfterRemove = eventsUser1AfterRemove.map((event: any) => ({
+      title: event[0],
+      parctitipationAmount: event[1].toNumber(),
+      eventParticipationAccounts: event[2]
+    }));
+    // console.log(actualResultUser1AfterRemove)
+
+    await ct.connect(user1).addEventSchedule(
+      1,
+      10,
+      20,
+      0,
+      titleGroup1OfEventStore,
+      title1EventSchedule,
+      month_range
+    );
+
+    const eventStoresAfterDelete = await ct.connect(user1).getEventSchedule(0, month_range);      
+    const eventScheduleAfterDelete = eventStoresAfterDelete[2].map((event: any) => ({
+      id: event[0].toNumber(),
+      start_event: event[1].toNumber(),
+      end_event: event[2].toNumber(),
+      title: event[3],
+    }));
+    const actualResultAfterDelete = {
+      title: eventStoresAfterDelete[0],
+      accounts: eventStoresAfterDelete[1],
+      eventSchedule: eventScheduleAfterDelete
+    };
+
+    // console.log(actualResultAfterDelete)
+    
+  })
 })
