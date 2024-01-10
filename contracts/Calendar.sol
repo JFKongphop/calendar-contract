@@ -16,6 +16,7 @@ contract Calendar {
   // for return title
   struct EventTitle {
     string title;
+    string coverImageCID;
     uint256 parctitipationAmount;
     address[] parctitipationAccount;
   }
@@ -35,6 +36,7 @@ contract Calendar {
 
   struct EventStore {
     string title;
+    string coverImageCID;
     address[] eventParticipationAccounts;
     mapping(string => EventSchedule[]) eventSchedule; // month_range => event
   }
@@ -179,7 +181,10 @@ contract Calendar {
 
   /* ----- PUBLIC FUNCTION ----- */
 
-  function createEventStore(string memory title) public returns(string memory) {
+  function createEventStore(
+    string memory title, 
+    string memory coverImageCID
+  ) public returns(string memory) {
     EventStore[] storage userEventStores = calendarStore[msg.sender].eventStores;
     uint256 lengthOfEventStore = Library.getLengthOfEventStore(userEventStores);
 
@@ -194,6 +199,7 @@ contract Calendar {
 
     EventStore storage newEventStore = userEventStores.push();
     newEventStore.title = title;
+    newEventStore.coverImageCID = coverImageCID;
 
     return "Create new event store successfully";
   }
@@ -248,6 +254,7 @@ contract Calendar {
     for (uint256 i = 0; i < lengthOfUserEventStores; i++) {
       eventTitles[i] = EventTitle(
         userEventStores[i].title,
+        userEventStores[i].coverImageCID,
         userEventStores[i].eventParticipationAccounts.length,
         userEventStores[i].eventParticipationAccounts
       );

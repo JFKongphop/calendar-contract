@@ -3,6 +3,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 
 const titleGroup1OfEventStore = 'title group 1';
+const coverImageCID = 'QmSvSnF1S2NQKDjLe9yBmkK4Mv2u8nhfbfmTEzmLhFTRZV';
 const title1EventSchedule = 'title 1';
 const month_range = '0-30'
 const timelineOverlapTestCases = [
@@ -45,17 +46,19 @@ describe('Calendar', async () => {
 
   describe('Create Event Store only title', () => {
     it('Should return title of event store array', async () => {
-      await ct.createEventStore(titleGroup1OfEventStore);
+      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
 
       const events = await ct.connect(user1).getEventTitle();
       const actualResult = events.map((event: any) => ({
         title: event[0],
-        parctitipationAmount: event[1].toNumber()
+        coverImageCID: event[1],
+        parctitipationAmount: event[2].toNumber()
       }));
 
       const eventExpected = [
         {
           title: titleGroup1OfEventStore, 
+          coverImageCID,
           parctitipationAmount: 0 
         }
       ];
@@ -64,13 +67,12 @@ describe('Calendar', async () => {
     });
 
     it('Should return lenght of event title array', async () => {
-      await ct.createEventStore(title1EventSchedule);
+      await ct.createEventStore(title1EventSchedule, coverImageCID);
       const eventTitles = await ct.connect(user1).getEventTitle();
       
       const lenghtOfEventStore = eventTitles.map((event: any) => ({
         title: event[0],
         parctitipationAmount: event[1],
-        del: event[2]
       })).length;
 
       expect(1).to.equal(lenghtOfEventStore);
@@ -78,30 +80,30 @@ describe('Calendar', async () => {
 
     it('Should revert of limitation require 5 event store', async () => {
       for(let i = 0; i < 6; i++) {
-        await ct.createEventStore(`title ${i}`);
+        await ct.createEventStore(`title ${i}`, coverImageCID);
       }
 
       const revertWord = 'Limitation to create event store';
-      await expect(ct.createEventStore('')).to.be.revertedWith(revertWord);
+      await expect(ct.createEventStore('', coverImageCID)).to.be.revertedWith(revertWord);
     });
 
     it('Should revert of invalid title', async () => {
       const revertWord = 'Invalid title';
-      await expect(ct.createEventStore('')).to.be.revertedWith(revertWord);    
+      await expect(ct.createEventStore('', coverImageCID)).to.be.revertedWith(revertWord);    
     });
 
     it('Should revert of limitation create event', async () => {
-      await ct.createEventStore(titleGroup1OfEventStore);
+      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
 
       const revertWord = 'Cannot create duplicate name of event store';
-      await expect(ct.createEventStore(titleGroup1OfEventStore))
+      await expect(ct.createEventStore(titleGroup1OfEventStore, coverImageCID))
       .to.be.revertedWith(revertWord);      
     });
   });
 
   describe('Add Event Store all event data', () => {
     it('Should return event store array', async () => {
-      await ct.createEventStore(titleGroup1OfEventStore);
+      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
       const id = Date.now();
 
       await ct.connect(user1).addEventSchedule(
@@ -146,7 +148,7 @@ describe('Calendar', async () => {
 
     it('Should revert dont have event store', async () => {
       const notFoundTitle = 'title group 0';
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore)
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID)
       await expect(ct.connect(user1).addEventSchedule(
         1,
         10,
@@ -187,23 +189,31 @@ describe('Calendar', async () => {
   describe("Edit Event Store Title only title", () => {
     it('Should return event store title changed',async () => {
       const storeTitleChange = 'title changed group 1'
-      await ct.createEventStore(titleGroup1OfEventStore);
+      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
       await ct.connect(user1).editEventStoreTitle(0, storeTitleChange);
 
       const events = await ct.connect(user1).getEventTitle();
       const actualResult = events.map((event: any) => ({
         title: event[0],
-        parctitipationAmount: event[1].toNumber()
+        coverImageCID: event[1],
+        parctitipationAmount: event[2].toNumber()
       }));
-      const eventExpected = [{ title: storeTitleChange, parctitipationAmount: 0 }];
+
+      const eventExpected = [
+        {
+          title: storeTitleChange, 
+          coverImageCID,
+          parctitipationAmount: 0 
+        }
+      ];
 
       expect(eventExpected).to.deep.equal(actualResult);
     });
 
     it('Should revert duplcate title of event calendar',async () => {
       const storeTitleChange = 'title changed group 1'
-      await ct.createEventStore(titleGroup1OfEventStore);
-      await ct.createEventStore(storeTitleChange);
+      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
+      await ct.createEventStore(storeTitleChange, coverImageCID);
 
       const revertWord = 'Duplicate name or event calendar';
       await expect(
@@ -215,7 +225,7 @@ describe('Calendar', async () => {
   describe("Edit Event Schedule data by id", () => {
     it('Should return event schedule data changded', async () => {
       const scheduleTitleChange = 'title changed 1'
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
       await ct.connect(user1).addEventSchedule(
         1,
         10,
@@ -264,7 +274,7 @@ describe('Calendar', async () => {
     });
 
     it('Should return reject with array out of bounds', async () => {
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
       await ct.connect(user1).addEventSchedule(
         1,
         10,
@@ -289,7 +299,7 @@ describe('Calendar', async () => {
 
   describe("Delete Event Schedule by event id", () => {
     it("Should return delete event schedule", async () => {
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
 
       for (let i = 0; i < timelineValidTestCases.length; i++) {
         await ct.connect(user1).addEventSchedule(
@@ -349,7 +359,7 @@ describe('Calendar', async () => {
 
   describe('Invite participation by address', () => {
     it('Should return invitation address', async () => {
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
       await ct.connect(user1).addEventSchedule(
         1,
         10,
@@ -410,7 +420,7 @@ describe('Calendar', async () => {
     });
 
     it('Should revert invalid store index', async () => {
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
       await ct.connect(user1).addEventSchedule(
         1,
         10,
@@ -432,7 +442,7 @@ describe('Calendar', async () => {
     });
 
     it('Should revert cannot invite owner', async () => {
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
 
       const revertWord = 'Cannot invite owner';
       const invitation_account = await user1.getAddress();
@@ -446,7 +456,7 @@ describe('Calendar', async () => {
     });
 
     it('Should revert cannot invite duplicate address',  async () => {
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
 
       const invitation_account = await user2.getAddress();
       await ct.connect(user1).inviteParticipation(
@@ -471,7 +481,7 @@ describe('Calendar', async () => {
   describe('Leave Participation by index and title', () => {
     it('Should return leave participation success', async () => {
       const store_index = 0;
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
       await ct.connect(user1).addEventSchedule(
         1,
         10,
@@ -570,7 +580,7 @@ describe('Calendar', async () => {
 
   describe('Delete event schedule by month range', () => {
     it('Should return delete event schedule by month range', async () => {
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
       await ct.connect(user1).addEventSchedule(
         1,
         10,
@@ -631,9 +641,11 @@ describe('Calendar', async () => {
   });
 
   describe('Remove account participation by store_index and participation account', () => {
+    
     it('Should return remove participation account', async () => {
+      console.log('test', 'wofjfjoew')
       const store_index = 0;
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
       await ct.connect(user1).addEventSchedule(
         1,
         10,
@@ -654,7 +666,8 @@ describe('Calendar', async () => {
       const eventsUser1BeforeRemove = await ct.connect(user1).getEventTitle();
       const actualResultUser1BeforeRemove = eventsUser1BeforeRemove.map((event: any) => ({
         title: event[0],
-        parctitipationAmount: event[1].toNumber()
+        coverImageCID: event[1],
+        parctitipationAmount: event[2].toNumber(),
       }));
       const user2TitleBeforeRemove = await ct.connect(user2).getParticipationTitle();
       const user2TitleActualBeforeRemove = user2TitleBeforeRemove.map((event: any) => ({
@@ -669,7 +682,8 @@ describe('Calendar', async () => {
       const eventsUser1AfterRemove = await ct.connect(user1).getEventTitle();
       const actualResultUser1AfterRemove = eventsUser1AfterRemove.map((event: any) => ({
         title: event[0],
-        parctitipationAmount: event[1].toNumber()
+        coverImageCID: event[1],
+        parctitipationAmount: event[2].toNumber()
       }));
       const user2TitleAfterRemove = await ct.connect(user2).getParticipationTitle();
       const user2TitleActuaAfterRemove = user2TitleAfterRemove.map((event: any) => ({
@@ -679,7 +693,11 @@ describe('Calendar', async () => {
       }));
 
       const expectedResultEventStoreTitleUser1 = [
-        { title: 'title group 1', parctitipationAmount: 0 }
+        { 
+          title: 'title group 1', 
+          coverImageCID,
+          parctitipationAmount: 0 
+        }
       ];
       const expectedResultParticipationTitleUser2: any[] = [];
 
@@ -688,10 +706,10 @@ describe('Calendar', async () => {
     });
   });
 
-  describe('Remove all accounts Pparticipation by store index', async () => {
+  describe('Remove all accounts participation by store index', async () => {
     it('Should return remove all account participation successfully', async () => {
       const store_index = 0;
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
       await ct.connect(user1).addEventSchedule(
         1,
         10,
@@ -718,8 +736,9 @@ describe('Calendar', async () => {
       const eventsUser1BeforeRemove = await ct.connect(user1).getEventTitle();
       const actualResultUser1BeforeRemove = eventsUser1BeforeRemove.map((event: any) => ({
         title: event[0],
-        parctitipationAmount: event[1].toNumber(),
-        eventParticipationAccounts: event[2]
+        coverImageCID: event[1],
+        parctitipationAmount: event[2].toNumber(),
+        eventParticipationAccounts: event[3]
       }));
 
       const user2TitleBeforeRemove = await ct.connect(user2).getParticipationTitle();
@@ -741,8 +760,9 @@ describe('Calendar', async () => {
       const eventsUser1AfterRemove = await ct.connect(user1).getEventTitle();
       const actualResultUser1AfterRemove = eventsUser1AfterRemove.map((event: any) => ({
         title: event[0],
-        parctitipationAmount: event[1].toNumber(),
-        eventParticipationAccounts: event[2]
+        coverImageCID: event[1],
+        parctitipationAmount: event[2].toNumber(),
+        eventParticipationAccounts: event[3]
       }));
 
       const user2TitleAfterRemove = await ct.connect(user2).getParticipationTitle();
@@ -760,7 +780,8 @@ describe('Calendar', async () => {
 
       const expectedResultEventStoreTitleUser1 = [
         { 
-          title: 'title group 1', 
+          title: 'title group 1',
+          coverImageCID,
           parctitipationAmount: 0,
           eventParticipationAccounts: []
         }
@@ -775,7 +796,7 @@ describe('Calendar', async () => {
 
     it('Should revert remove all account partcipation by invalid store index', async () => {
       const store_index = 0;
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore);
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
       await ct.connect(user1).addEventSchedule(
         1,
         10,
@@ -798,41 +819,4 @@ describe('Calendar', async () => {
       ).to.revertedWith('Invalid store index');
     });
   });
-
-  it('test', async () => {
-    await ct.createEventStore(titleGroup1OfEventStore);
-    const eventsUser1AfterRemove = await ct.connect(user1).getEventTitle();
-    const actualResultUser1AfterRemove = eventsUser1AfterRemove.map((event: any) => ({
-      title: event[0],
-      parctitipationAmount: event[1].toNumber(),
-      eventParticipationAccounts: event[2]
-    }));
-    // console.log(actualResultUser1AfterRemove)
-
-    await ct.connect(user1).addEventSchedule(
-      1,
-      10,
-      20,
-      0,
-      titleGroup1OfEventStore,
-      title1EventSchedule,
-      month_range
-    );
-
-    const eventStoresAfterDelete = await ct.connect(user1).getEventSchedule(0, month_range);      
-    const eventScheduleAfterDelete = eventStoresAfterDelete[2].map((event: any) => ({
-      id: event[0].toNumber(),
-      start_event: event[1].toNumber(),
-      end_event: event[2].toNumber(),
-      title: event[3],
-    }));
-    const actualResultAfterDelete = {
-      title: eventStoresAfterDelete[0],
-      accounts: eventStoresAfterDelete[1],
-      eventSchedule: eventScheduleAfterDelete
-    };
-
-    // console.log(actualResultAfterDelete)
-    
-  })
 })
