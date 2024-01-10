@@ -18,7 +18,6 @@ contract Calendar {
     string title;
     uint256 parctitipationAmount;
     address[] parctitipationAccount;
-    bool del;
   }
 
   // for return title of participation
@@ -37,7 +36,6 @@ contract Calendar {
   struct EventStore {
     string title;
     address[] eventParticipationAccounts;
-    bool deletedStatus;
     mapping(string => EventSchedule[]) eventSchedule; // month_range => event
   }
 
@@ -196,7 +194,6 @@ contract Calendar {
 
     EventStore storage newEventStore = userEventStores.push();
     newEventStore.title = title;
-    newEventStore.deletedStatus = false;
 
     return "Create new event store successfully";
   }
@@ -252,8 +249,7 @@ contract Calendar {
       eventTitles[i] = EventTitle(
         userEventStores[i].title,
         userEventStores[i].eventParticipationAccounts.length,
-        userEventStores[i].eventParticipationAccounts,
-        userEventStores[i].deletedStatus
+        userEventStores[i].eventParticipationAccounts
       );
     }
 
