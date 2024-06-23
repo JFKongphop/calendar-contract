@@ -384,9 +384,9 @@ contract Calendar {
       if (eventSchedules[i].id == event_id) {
         uint256 lastIndex = eventSchedules.length - 1;
         if (i != lastIndex) {
-          EventSchedule memory temp = eventSchedules[i];
+          // EventSchedule memory temp = eventSchedules[i];
           eventSchedules[i] = eventSchedules[lastIndex];
-          eventSchedules[lastIndex] = temp;
+          // eventSchedules[lastIndex] = temp;
         }
 
         eventSchedules.pop();
