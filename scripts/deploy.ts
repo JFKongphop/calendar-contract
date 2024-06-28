@@ -4,26 +4,28 @@ import hre, { ethers } from 'hardhat';
 // if plugin is not support npx hardhat verify --network holesky address
 
 const deploy = async () => {
-  const CompareLibrary = await ethers.getContractFactory('Library');
-  const compareLibrary = await CompareLibrary.deploy();
-  await compareLibrary.deployed();
-
+  const LibraryContract = await ethers.getContractFactory('Library');
+  const libraryContract = await LibraryContract.deploy();
+  const libraryAddress = await libraryContract.getAddress();
+  
   const CalendarContract = await ethers.getContractFactory('Calendar', {
     libraries: {
-      Library: compareLibrary.address
-    },
+      Library: libraryAddress,
+    }
   });
 
-  const calendar = await CalendarContract.deploy()
+  const calendarContract = await CalendarContract.deploy();
 
-  await calendar.deployTransaction.wait(5);
-  
-  console.log('LIBRARY ADDRESS', compareLibrary.address);
-  console.log('CALENDAR ADDRESS', calendar.address);
+  await calendarContract.deploymentTransaction()?.wait(5);
+
+  const calendarAddress = await calendarContract.getAddress();
+
+  console.log('LIBRARY ADDRESS', libraryAddress);
+  console.log('CALENDAR ADDRESS', calendarAddress);
 
   try {
     await hre.run('verify:verify', {
-      address: calendar.address,
+      address: calendarAddress,
       contract: 'contracts/Calendar.sol:Calendar'
     });
   }
@@ -34,7 +36,7 @@ const deploy = async () => {
 
   try {
     await hre.run('verify:verify', {
-      address: calendar.address,
+      address: calendarAddress,
       contract: 'contracts/lib/Library.sol:Library'
     });
   }

@@ -5,7 +5,7 @@ dotenv.config();
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.17",
+    version: "0.8.19",
     settings: {
       outputSelection: {
         "*": {
@@ -40,4 +40,3 @@ const config: HardhatUserConfig = {
 };
 
 export default config;
-// 
