@@ -24,6 +24,11 @@ const timelineValidTestCases = [
   { start_event: 4, end_event: 5,},
 ];
 
+type EventTitleStructOutput = Calendar.EventTitleStructOutput;
+type EventScheduleStructOutput = Calendar.EventScheduleStructOutput;
+type EventStoreRetrivedStructOutput = Calendar.EventStoreRetrivedStructOutput;
+type ParticipationStoreStructOutput = Calendar.ParticipationStoreStructOutput;
+
 describe('Calendar', async () => {
   let user1: Signer, user2: Signer, user3: Signer;
   let ct: Calendar;
@@ -90,7 +95,7 @@ describe('Calendar', async () => {
       await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
 
       const events = await ct.connect(user1).getEventTitle();
-      const actualResult = events.map((event: any) => ({
+      const actualResult = events.map((event: Calendar.EventTitleStructOutput) => ({
         title: event[0],
         coverImageCID: event[1],
         parctitipationAmount: Number(event[2])
@@ -142,90 +147,69 @@ describe('Calendar', async () => {
     });
   });
 
-  // describe('Add Event Store all event data', () => {
-  //   it('Should return event store array', async () => {
-  //     await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
-  //     const id = Date.now();
+  describe('Add Event Store all event data', () => {
+    it('Should return event store array', async () => {
+      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
+      const id = Date.now();
 
-  //     await ct.connect(user1).addEventSchedule(
-  //       id,
-  //       10,
-  //       20,
-  //       0,
-  //       titleGroup1OfEventStore,
-  //       title1EventSchedule,
-  //       month_range
-  //     );
+      await ct.connect(user1).addEventSchedule(
+        id,
+        10,
+        20,
+        0,
+        titleGroup1OfEventStore,
+        title1EventSchedule,
+        month_range
+      );
 
-  //     const eventStores = await ct.connect(user1).getEventSchedule(0, month_range);
+      const eventStores = await ct.connect(user1).getEventSchedule(0, month_range);
 
-  //     const eventSchedule = eventStores[2].map((event: any) => ({
-  //       id: event[0].toNumber(),
-  //       start_event: event[1].toNumber(),
-  //       end_event: event[2].toNumber(),
-  //       title: event[3],
-  //     }));
-  //     const actualResult = {
-  //       title: eventStores[0],
-  //       accounts: eventStores[1],
-  //       eventSchedule: eventSchedule
-  //     };
+      console.log(eventStores)
+      
 
-  //     const expectedResult = {
-  //       title: titleGroup1OfEventStore,
-  //       accounts: [],
-  //       eventSchedule: [
-  //         {
-  //           id,
-  //           start_event: 10,
-  //           end_event: 20,
-  //           title: title1EventSchedule,
-  //         },
-  //       ]
-  //     };
 
-  //     expect(expectedResult).to.deep.equal(actualResult);
-  //   });
+      const eventSchedule = eventStores[2].map((event) => ({
+        id: Number(event[0]),
+        start_event: Number(event[1]),
+        end_event: Number(event[2]),
+        title: event[3],
+      }));
+      const actualResult = {
+        title: eventStores[0],
+        accounts: eventStores[1],
+        eventSchedule: eventSchedule
+      };
 
-  //   it('Should revert dont have event store', async () => {
-  //     const notFoundTitle = 'title group 0';
-  //     await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID)
-  //     await expect(ct.connect(user1).addEventSchedule(
-  //       1,
-  //       10,
-  //       20,
-  //       0,
-  //       notFoundTitle,
-  //       title1EventSchedule,
-  //       month_range
-  //     )).to.be.revertedWith("Invalid store title");
-  //   });
+      const expectedResult = {
+        title: titleGroup1OfEventStore,
+        accounts: [],
+        eventSchedule: [
+          {
+            id,
+            start_event: 10,
+            end_event: 20,
+            title: title1EventSchedule,
+          },
+        ]
+      };
 
-  //   // it('Should return revert overlap time line of event', async () => {
-  //   //   await ct.connect(user1).createEventStore(titleGroup1OfEventStore)
-  //   //   await ct.connect(user1).addEventSchedule(
-  //   //     Date.now(),
-  //   //     7,
-  //   //     11,
-  //   //     0,
-  //   //     titleGroup1OfEventStore,
-  //   //     title1EventSchedule,
-  //   //     month_range
-  //   //   );
+      expect(expectedResult).to.deep.equal(actualResult);
+    });
 
-  //   //   for (let i = 0; i < timelineOverlapTestCases.length; i++) {
-  //   //     await expect(ct.connect(user1).addEventSchedule(
-  //   //       Date.now(),
-  //   //       timelineOverlapTestCases[i].start_event,
-  //   //       timelineOverlapTestCases[i].end_event,
-  //   //       0,
-  //   //       titleGroup1OfEventStore,
-  //   //       title1EventSchedule,
-  //   //       month_range
-  //   //     )).to.be.revertedWith('Timeline of event is invalid');
-  //   //   }
-  //   // });
-  // });
+    it('Should revert dont have event store', async () => {
+      const notFoundTitle = 'title group 0';
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID)
+      await expect(ct.connect(user1).addEventSchedule(
+        1,
+        10,
+        20,
+        0,
+        notFoundTitle,
+        title1EventSchedule,
+        month_range
+      )).to.be.revertedWith("Invalid store title");
+    });
+  });
 
   // describe("Edit Event Store Title only title", () => {
   //   it('Should return event store title changed',async () => {
