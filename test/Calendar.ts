@@ -1,7 +1,6 @@
-import { Signer, Contract } from 'ethers';
+import { Signer } from 'ethers';
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { HardhatEthersHelpers } from 'hardhat/types';
 import { Calendar } from '../typechain-types';
 
 const titleGroup1OfEventStore = 'title group 1';
@@ -46,28 +45,28 @@ describe('Calendar', async () => {
     ct.deploymentTransaction()
   })
 
-  it('Should test', async () => {
-    await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
+  // it('Should test', async () => {
+  //   await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
 
-    const events = await ct.connect(user1).getEventTitle();
-    const actualResult = events.map((event: any) => ({
-      title: event[0],
-      coverImageCID: event[1],
-      parctitipationAmount: Number(event[2])
-    }));
+  //   const events = await ct.connect(user2).getEventTitle();
+  //   const actualResult = events.map((event: any) => ({
+  //     title: event[0],
+  //     coverImageCID: event[1],
+  //     parctitipationAmount: Number(event[2])
+  //   }));
 
-    console.log(actualResult)
+  //   console.log(actualResult)
 
-    // const eventExpected = [
-    //   {
-    //     title: titleGroup1OfEventStore, 
-    //     coverImageCID,
-    //     parctitipationAmount: 0 
-    //   }
-    // ];
+  //   // const eventExpected = [
+  //   //   {
+  //   //     title: titleGroup1OfEventStore, 
+  //   //     coverImageCID,
+  //   //     parctitipationAmount: 0 
+  //   //   }
+  //   // ];
 
-    // expect(eventExpected).to.deep.equal(actualResult) 
-  })
+  //   // expect(eventExpected).to.deep.equal(actualResult) 
+  // })
 
   // beforeEach(async () => {
   //   [user1, user2, user3] = await ethers.getSigners();
@@ -86,62 +85,62 @@ describe('Calendar', async () => {
   //   await ct.deployed();
   // });
 
-  // describe('Create Event Store only title', () => {
-  //   it('Should return title of event store array', async () => {
-  //     await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
+  describe('Create Event Store only title', () => {
+    it('Should return title of event store array', async () => {
+      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
 
-  //     const events = await ct.connect(user1).getEventTitle();
-  //     const actualResult = events.map((event: any) => ({
-  //       title: event[0],
-  //       coverImageCID: event[1],
-  //       parctitipationAmount: event[2].toNumber()
-  //     }));
+      const events = await ct.connect(user1).getEventTitle();
+      const actualResult = events.map((event: any) => ({
+        title: event[0],
+        coverImageCID: event[1],
+        parctitipationAmount: Number(event[2])
+      }));
 
-  //     const eventExpected = [
-  //       {
-  //         title: titleGroup1OfEventStore, 
-  //         coverImageCID,
-  //         parctitipationAmount: 0 
-  //       }
-  //     ];
+      const eventExpected = [
+        {
+          title: titleGroup1OfEventStore, 
+          coverImageCID,
+          parctitipationAmount: 0 
+        }
+      ];
 
-  //     expect(eventExpected).to.deep.equal(actualResult) 
-  //   });
+      expect(eventExpected).to.deep.equal(actualResult) 
+    });
 
-  //   it('Should return lenght of event title array', async () => {
-  //     await ct.createEventStore(title1EventSchedule, coverImageCID);
-  //     const eventTitles = await ct.connect(user1).getEventTitle();
+    it('Should return lenght of event title array', async () => {
+      await ct.createEventStore(title1EventSchedule, coverImageCID);
+      const eventTitles = await ct.connect(user1).getEventTitle();
       
-  //     const lenghtOfEventStore = eventTitles.map((event: any) => ({
-  //       title: event[0],
-  //       parctitipationAmount: event[1],
-  //     })).length;
+      const lenghtOfEventStore = eventTitles.map((event: any) => ({
+        title: event[0],
+        parctitipationAmount: event[1],
+      })).length;
 
-  //     expect(1).to.equal(lenghtOfEventStore);
-  //   });
+      expect(1).to.equal(lenghtOfEventStore);
+    });
 
-  //   it('Should revert of limitation require 5 event store', async () => {
-  //     for(let i = 0; i < 6; i++) {
-  //       await ct.createEventStore(`title ${i}`, coverImageCID);
-  //     }
+    it('Should revert of limitation require 5 event store', async () => {
+      for(let i = 0; i < 6; i++) {
+        await ct.createEventStore(`title ${i}`, coverImageCID);
+      }
 
-  //     const revertWord = 'Limitation to create event store';
-  //     await expect(ct.createEventStore('', coverImageCID)).to.be.revertedWith(revertWord);
-  //   });
+      const revertWord = 'Limitation to create event store';
+      await expect(ct.createEventStore('', coverImageCID)).to.be.revertedWith(revertWord);
+    });
 
-  //   it('Should revert of invalid title', async () => {
-  //     const revertWord = 'Invalid title';
-  //     await expect(ct.createEventStore('', coverImageCID)).to.be.revertedWith(revertWord);    
-  //   });
+    it('Should revert of invalid title', async () => {
+      const revertWord = 'Invalid title';
+      await expect(ct.createEventStore('', coverImageCID)).to.be.revertedWith(revertWord);    
+    });
 
-  //   it('Should revert of limitation create event', async () => {
-  //     await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
+    it('Should revert of limitation create event', async () => {
+      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
 
-  //     const revertWord = 'Cannot create duplicate name of event store';
-  //     await expect(ct.createEventStore(titleGroup1OfEventStore, coverImageCID))
-  //     .to.be.revertedWith(revertWord);      
-  //   });
-  // });
+      const revertWord = 'Cannot create duplicate name of event store';
+      await expect(ct.createEventStore(titleGroup1OfEventStore, coverImageCID))
+      .to.be.revertedWith(revertWord);      
+    });
+  });
 
   // describe('Add Event Store all event data', () => {
   //   it('Should return event store array', async () => {
