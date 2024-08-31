@@ -94,8 +94,8 @@ describe('Calendar', async () => {
     it('Should return title of event store array', async () => {
       await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
 
-      const events = await ct.connect(user1).getEventTitle();
-      const actualResult = events.map((event: Calendar.EventTitleStructOutput) => ({
+      const events: EventTitleStructOutput[] = await ct.connect(user1).getEventTitle();
+      const actualResult = events.map((event) => ({
         title: event[0],
         coverImageCID: event[1],
         parctitipationAmount: Number(event[2])
@@ -114,9 +114,9 @@ describe('Calendar', async () => {
 
     it('Should return lenght of event title array', async () => {
       await ct.createEventStore(title1EventSchedule, coverImageCID);
-      const eventTitles = await ct.connect(user1).getEventTitle();
+      const eventTitles: EventTitleStructOutput[] = await ct.connect(user1).getEventTitle();
       
-      const lenghtOfEventStore = eventTitles.map((event: any) => ({
+      const lenghtOfEventStore = eventTitles.map((event) => ({
         title: event[0],
         parctitipationAmount: event[1],
       })).length;
