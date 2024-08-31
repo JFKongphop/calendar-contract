@@ -162,11 +162,9 @@ describe('Calendar', async () => {
         month_range
       );
 
-      const eventStores = await ct.connect(user1).getEventSchedule(0, month_range);
-
-      console.log(eventStores)
-      
-
+      const eventStores: EventStoreRetrivedStructOutput = await ct.
+        connect(user1).
+        getEventSchedule(0, month_range);
 
       const eventSchedule = eventStores[2].map((event) => ({
         id: Number(event[0]),
@@ -174,6 +172,7 @@ describe('Calendar', async () => {
         end_event: Number(event[2]),
         title: event[3],
       }));
+      
       const actualResult = {
         title: eventStores[0],
         accounts: eventStores[1],
