@@ -210,41 +210,58 @@ describe('Calendar', async () => {
     });
   });
 
-  // describe("Edit Event Store Title only title", () => {
-  //   it('Should return event store title changed',async () => {
-  //     const storeTitleChange = 'title changed group 1'
-  //     await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
-  //     await ct.connect(user1).editEventStoreTitle(0, storeTitleChange);
+  describe("Edit Event Store Title only title", () => {
+    it('Should return event store title changed',async () => {
+      const storeTitleChange = 'title changed group 1'
+      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
+      await ct.connect(user1).editEventStoreTitle(0, storeTitleChange);
 
-  //     const events = await ct.connect(user1).getEventTitle();
-  //     const actualResult = events.map((event: any) => ({
-  //       title: event[0],
-  //       coverImageCID: event[1],
-  //       parctitipationAmount: event[2].toNumber()
-  //     }));
+      const events = await ct.connect(user1).getEventTitle();
+      const actualResult = events.map((event: any) => ({
+        title: event[0],
+        coverImageCID: event[1],
+        parctitipationAmount: Number(event[2]),
+      }));
 
-  //     const eventExpected = [
-  //       {
-  //         title: storeTitleChange, 
-  //         coverImageCID,
-  //         parctitipationAmount: 0 
-  //       }
-  //     ];
+      const eventExpected = [
+        {
+          title: storeTitleChange, 
+          coverImageCID,
+          parctitipationAmount: 0 
+        }
+      ];
 
-  //     expect(eventExpected).to.deep.equal(actualResult);
-  //   });
+      expect(eventExpected).to.deep.equal(actualResult);
+    });
 
-  //   it('Should revert duplcate title of event calendar',async () => {
-  //     const storeTitleChange = 'title changed group 1'
-  //     await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
-  //     await ct.createEventStore(storeTitleChange, coverImageCID);
+    it('Should revert duplcate title group of event calendar',async () => {
+      const storeTitleChange = 'title changed group 1';
+      const revertWord = 'Cannot create duplicate name of event store';
+      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
+      await expect(
+        ct.createEventStore(titleGroup1OfEventStore, coverImageCID)
+      ).to.be.revertedWith(revertWord);
 
-  //     const revertWord = 'Duplicate name or event calendar';
-  //     await expect(
-  //       ct.connect(user1).editEventStoreTitle(0, storeTitleChange)
-  //     ).to.be.revertedWith(revertWord);
-  //   });
-  // });
+      
+      
+      // const revertWord = 'Duplicate name or event calendar';
+      await ct.connect(user1).editEventStoreTitle(0, storeTitleChange)
+      
+      const events: EventTitleStructOutput[] = await ct.connect(user1).getEventTitle();
+      const actualResult = events.map((event) => ({
+        title: event[0],
+        coverImageCID: event[1],
+        parctitipationAmount: Number(event[2])
+      }));
+      console.log(actualResult)
+      // console.log("test", a)
+      // await expect(
+      //   ct.connect(user1).editEventStoreTitle(0, storeTitleChange)
+      // ).to.be.revertedWith(revertWord);
+    });
+
+
+  });
 
   // describe("Edit Event Schedule data by id", () => {
   //   it('Should return event schedule data changded', async () => {
