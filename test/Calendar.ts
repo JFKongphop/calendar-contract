@@ -1,6 +1,6 @@
 import { Signer } from 'ethers';
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers} from "hardhat";
 import { Calendar } from '../typechain-types';
 
 const titleGroup1OfEventStore = 'title group 1';
@@ -234,33 +234,22 @@ describe('Calendar', async () => {
       expect(eventExpected).to.deep.equal(actualResult);
     });
 
-    it('Should revert duplcate title group of event calendar',async () => {
+    it('Should revert create event duplcate title group of event calendar', async () => {
       const storeTitleChange = 'title changed group 1';
       const revertWord = 'Cannot create duplicate name of event store';
       await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
       await expect(
         ct.createEventStore(titleGroup1OfEventStore, coverImageCID)
       ).to.be.revertedWith(revertWord);
-
-      
-      
-      // const revertWord = 'Duplicate name or event calendar';
-      await ct.connect(user1).editEventStoreTitle(0, storeTitleChange)
-      
-      const events: EventTitleStructOutput[] = await ct.connect(user1).getEventTitle();
-      const actualResult = events.map((event) => ({
-        title: event[0],
-        coverImageCID: event[1],
-        parctitipationAmount: Number(event[2])
-      }));
-      console.log(actualResult)
-      // console.log("test", a)
-      // await expect(
-      //   ct.connect(user1).editEventStoreTitle(0, storeTitleChange)
-      // ).to.be.revertedWith(revertWord);
     });
 
-
+    it('Should revert edit event deuplicate title group of event calendar', async () => {
+      const revertWord = 'Duplicate name or event calendar';
+      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
+      await expect(
+        ct.connect(user1).editEventStoreTitle(0, titleGroup1OfEventStore)
+      ).to.be.revertedWith(revertWord);
+    })
   });
 
   // describe("Edit Event Schedule data by id", () => {
