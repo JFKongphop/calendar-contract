@@ -235,7 +235,6 @@ describe('Calendar', async () => {
     });
 
     it('Should revert create event duplcate title group of event calendar', async () => {
-      const storeTitleChange = 'title changed group 1';
       const revertWord = 'Cannot create duplicate name of event store';
       await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
       await expect(
@@ -252,80 +251,83 @@ describe('Calendar', async () => {
     })
   });
 
-  // describe("Edit Event Schedule data by id", () => {
-  //   it('Should return event schedule data changded', async () => {
-  //     const scheduleTitleChange = 'title changed 1'
-  //     await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
-  //     await ct.connect(user1).addEventSchedule(
-  //       1,
-  //       10,
-  //       20,
-  //       0,
-  //       titleGroup1OfEventStore,
-  //       title1EventSchedule,
-  //       month_range
-  //     );
-  //     await ct.connect(user1).editEventSchedule(
-  //       0,
-  //       1,
-  //       0,
-  //       30,
-  //       month_range,
-  //       scheduleTitleChange
-  //     );
+  describe("Edit Event Schedule data by id", () => {
+    it('Should return event schedule data changded', async () => {
+      const scheduleTitleChange = 'title changed 1'
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
+      await ct.connect(user1).addEventSchedule(
+        1,
+        10,
+        20,
+        0,
+        titleGroup1OfEventStore,
+        title1EventSchedule,
+        month_range
+      );
+      await ct.connect(user1).editEventSchedule(
+        0,
+        1,
+        0,
+        30,
+        month_range,
+        scheduleTitleChange
+      );
 
-  //     const eventStores = await ct.connect(user1).getEventSchedule(0, month_range);
-  //     const eventSchedule = eventStores[2].map((event: any) => ({
-  //       id: event[0].toNumber(),
-  //       start_event: event[1].toNumber(),
-  //       end_event: event[2].toNumber(),
-  //       title: event[3],
-  //     }));
-  //     const actualResult = {
-  //       title: eventStores[0],
-  //       accounts: eventStores[1],
-  //       eventSchedule: eventSchedule
-  //     };
+      const eventStores: EventStoreRetrivedStructOutput = await ct.
+        connect(user1).
+        getEventSchedule(0, month_range);
 
-  //     const expectedResult = {
-  //       title: titleGroup1OfEventStore,
-  //       accounts: [],
-  //       eventSchedule: [
-  //         {
-  //           id: 1,
-  //           start_event: 10,
-  //           end_event: 30,
-  //           title: scheduleTitleChange
-  //         }
-  //       ]
-  //     };
+      const eventSchedule = eventStores[2].map((event) => ({
+        id: Number(event[0]),
+        start_event: Number(event[1]),
+        end_event: Number(event[2]),
+        title: event[3],
+      }));
+      const actualResult = {
+        title: eventStores[0],
+        accounts: eventStores[1],
+        eventSchedule: eventSchedule
+      };
 
-  //     expect(expectedResult).to.deep.equal(actualResult);
-  //   });
+      const expectedResult = {
+        title: titleGroup1OfEventStore,
+        accounts: [],
+        eventSchedule: [
+          {
+            id: 1,
+            start_event: 10,
+            end_event: 30,
+            title: scheduleTitleChange
+          }
+        ]
+      };
 
-  //   it('Should return reject with array out of bounds', async () => {
-  //     await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
-  //     await ct.connect(user1).addEventSchedule(
-  //       1,
-  //       10,
-  //       20,
-  //       0,
-  //       titleGroup1OfEventStore,
-  //       title1EventSchedule,
-  //       month_range
-  //     );
+      expect(expectedResult).to.deep.equal(actualResult);
+    });
 
-  //     const rejectWord = 'Array accessed at an out-of-bounds or negative index';
-  //     await expect(ct.connect(user1).editEventSchedule(
-  //       4,
-  //       1,
-  //       0,
-  //       30,
-  //       month_range,
-  //       "changed",
-  //     )).to.be.rejectedWith(rejectWord);
-  //   });
-  // });
+    it('Should return reject with array out of bounds', async () => {
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
+      await ct.connect(user1).addEventSchedule(
+        1,
+        10,
+        20,
+        0,
+        titleGroup1OfEventStore,
+        title1EventSchedule,
+        month_range
+      );
+
+      const rejectWord = 'Array accessed at an out-of-bounds or negative index';
+      await expect(ct.connect(user1).editEventSchedule(
+        4,
+        1,
+        0,
+        30,
+        month_range,
+        "changed",
+      )).to.be.rejectedWith(rejectWord);
+    });
+  });
 
   // describe("Delete Event Schedule by event id", () => {
   //   it("Should return delete event schedule", async () => {
