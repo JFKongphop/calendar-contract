@@ -329,65 +329,68 @@ describe('Calendar', async () => {
     });
   });
 
-  // describe("Delete Event Schedule by event id", () => {
-  //   it("Should return delete event schedule", async () => {
-  //     await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
+  describe("Delete Event Schedule by event id", () => {
+    it("Should return delete event schedule", async () => {
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
 
-  //     for (let i = 0; i < timelineValidTestCases.length; i++) {
-  //       await ct.connect(user1).addEventSchedule(
-  //         i + 1,
-  //         timelineValidTestCases[i].start_event,
-  //         timelineValidTestCases[i].end_event,
-  //         0,
-  //         titleGroup1OfEventStore,
-  //         `title ${i + 1}`,
-  //         month_range
-  //       );
-  //     }
+      for (let i = 0; i < timelineValidTestCases.length; i++) {
+        await ct.connect(user1).addEventSchedule(
+          i + 1,
+          timelineValidTestCases[i].start_event,
+          timelineValidTestCases[i].end_event,
+          0,
+          titleGroup1OfEventStore,
+          `title ${i + 1}`,
+          month_range
+        );
+      }
 
-  //     ct.connect(user1).deleteEventSchedule(0, 1, month_range);
+      await ct.connect(user1).deleteEventSchedule(0, 1, month_range);
 
-  //     const eventStores = await ct.connect(user1).getEventSchedule(0, month_range);      
-  //     const eventSchedule = eventStores[2].map((event: any) => ({
-  //       id: event[0].toNumber(),
-  //       start_event: event[1].toNumber(),
-  //       end_event: event[2].toNumber(),
-  //       title: event[3],
-  //     }));
-  //     const actualResult = {
-  //       title: eventStores[0],
-  //       accounts: eventStores[1],
-  //       eventSchedule
-  //     };
+      const eventStores: EventStoreRetrivedStructOutput = await ct.
+        connect(user1).
+        getEventSchedule(0, month_range);      
+      const eventSchedule = eventStores[2].map((event) => ({
+        id: Number(event[0]),
+        start_event: Number(event[1]),
+        end_event: Number(event[2]),
+        title: event[3],
+      }));
 
-  //     const expectedResult = {
-  //       title: titleGroup1OfEventStore,
-  //       accounts: [],
-  //       eventSchedule: [
-  //         {
-  //           id: 4,
-  //           start_event: 4,
-  //           end_event: 5,
-  //           title: 'title 4'
-  //         },
-  //         {
-  //           id: 2,
-  //           start_event: 2,
-  //           end_event: 3,
-  //           title: 'title 2'
-  //         },
-  //         {
-  //           id: 3,
-  //           start_event: 3,
-  //           end_event: 4,
-  //           title: 'title 3'
-  //         }
-  //       ]
-  //     };
+      const actualResult = {
+        title: eventStores[0],
+        accounts: eventStores[1],
+        eventSchedule
+      };
 
-  //     expect(expectedResult).to.deep.equal(actualResult);
-  //   });
-  // });
+      const expectedResult = {
+        title: titleGroup1OfEventStore,
+        accounts: [],
+        eventSchedule: [
+          {
+            id: 4,
+            start_event: 4,
+            end_event: 5,
+            title: 'title 4'
+          },
+          {
+            id: 2,
+            start_event: 2,
+            end_event: 3,
+            title: 'title 2'
+          },
+          {
+            id: 3,
+            start_event: 3,
+            end_event: 4,
+            title: 'title 3'
+          }
+        ]
+      };
+
+      expect(expectedResult).to.deep.equal(actualResult);
+    });
+  });
 
   // describe('Invite participation by address', () => {
   //   it('Should return invitation address', async () => {
