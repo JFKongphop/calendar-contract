@@ -209,6 +209,7 @@ describe('Calendar', async () => {
 
     it('Should revert dont have event store', async () => {
       const notFoundTitle = 'title group 0';
+      const revertWord = 'Invalid store title';
       await expect(ct.connect(user1).addEventSchedule(
         1,
         10,
@@ -217,7 +218,7 @@ describe('Calendar', async () => {
         notFoundTitle,
         title1EventSchedule,
         month_range
-      )).to.be.revertedWith("Invalid store title");
+      )).to.be.revertedWith(revertWord);
     });
   });
 
