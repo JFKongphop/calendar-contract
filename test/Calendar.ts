@@ -272,7 +272,7 @@ describe('Calendar', async () => {
         .connect(user1)
         .createEventStore(titleGroup1OfEventStore, coverImageCID);
     })
-    
+
     it('Should return event schedule data changded', async () => {
       const scheduleTitleChange = 'title changed 1'
       await ct.connect(user1).addEventSchedule(
@@ -293,9 +293,9 @@ describe('Calendar', async () => {
         scheduleTitleChange
       );
 
-      const eventStores: EventStoreRetrivedStructOutput = await ct.
-        connect(user1).
-        getEventSchedule(0, month_range);
+      const eventStores: EventStoreRetrivedStructOutput = await ct
+        .connect(user1)
+        .getEventSchedule(0, month_range);
 
       const eventSchedule = eventStores[2].map((event) => ({
         id: Number(event[0]),
