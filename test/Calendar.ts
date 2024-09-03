@@ -223,13 +223,16 @@ describe('Calendar', async () => {
   });
 
   describe("Edit Event Store Title only title", () => {
+    beforeEach(async () => {
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
+    })
+
     it('Should return event store title changed',async () => {
       const storeTitleChange = 'title changed group 1'
-      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
       await ct.connect(user1).editEventStoreTitle(0, storeTitleChange);
 
-      const events = await ct.connect(user1).getEventTitle();
-      const actualResult = events.map((event: any) => ({
+      const events: EventTitleStructOutput[] = await ct.connect(user1).getEventTitle();
+      const actualResult = events.map((event) => ({
         title: event[0],
         coverImageCID: event[1],
         parctitipationAmount: Number(event[2]),
@@ -248,17 +251,17 @@ describe('Calendar', async () => {
 
     it('Should revert create event duplcate title group of event calendar', async () => {
       const revertWord = 'Cannot create duplicate name of event store';
-      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
-      await expect(
-        ct.createEventStore(titleGroup1OfEventStore, coverImageCID)
+      await expect(ct
+        .connect(user1)
+        .createEventStore(titleGroup1OfEventStore, coverImageCID)
       ).to.be.revertedWith(revertWord);
     });
 
     it('Should revert edit event deuplicate title group of event calendar', async () => {
       const revertWord = 'Duplicate name or event calendar';
-      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
-      await expect(
-        ct.connect(user1).editEventStoreTitle(0, titleGroup1OfEventStore)
+      await expect(ct
+        .connect(user1)
+        .editEventStoreTitle(0, titleGroup1OfEventStore)
       ).to.be.revertedWith(revertWord);
     })
   });
