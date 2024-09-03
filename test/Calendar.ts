@@ -469,66 +469,49 @@ describe('Calendar', async () => {
 
       expect(expectedResult).to.deep.equal(actualResult);
     });
+
+    it('Should revert invalid store index', async () => {
+      await ct.connect(user1).addEventSchedule(
+        1,
+        10,
+        20,
+        0,
+        titleGroup1OfEventStore,
+        title1EventSchedule,
+        month_range
+      );
+
+      await expect(
+        ct.connect(user1).inviteParticipation(
+          1,
+          titleGroup1OfEventStore,
+          invitationAddress
+        )
+      ).to.be.revertedWith('Invalid store index');
+    });
+
+    it('Should revert cannot invite owner', async () => {
+      const revertWord = 'Cannot invite owner';
+      await expect(
+        ct.connect(user1).inviteParticipation(
+         0,
+         titleGroup1OfEventStore,
+         createdAddress
+       )
+      ).to.be.revertedWith(revertWord);
+    });
+
+    it('Should revert cannot invite duplicate address',  async () => {
+      const revertWord = 'Cannot invite duplicate address';
+      await expect(
+        ct.connect(user1).inviteParticipation(
+         0,
+         titleGroup1OfEventStore,
+         invitationAddress
+       )
+      ).to.be.revertedWith(revertWord);
+    });
   });
-
-  //   it('Should revert invalid store index', async () => {
-  //     await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
-  //     await ct.connect(user1).addEventSchedule(
-  //       1,
-  //       10,
-  //       20,
-  //       0,
-  //       titleGroup1OfEventStore,
-  //       title1EventSchedule,
-  //       month_range
-  //     );
-
-  //     const invitation_account = await user2.getAddress();
-  //     await expect(
-  //       ct.connect(user1).inviteParticipation(
-  //         1,
-  //         titleGroup1OfEventStore,
-  //         invitation_account
-  //       )
-  //     ).to.be.revertedWith('Invalid store index');
-  //   });
-
-  //   it('Should revert cannot invite owner', async () => {
-  //     await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
-
-  //     const revertWord = 'Cannot invite owner';
-  //     const invitation_account = await user1.getAddress();
-  //     await expect(
-  //       ct.connect(user1).inviteParticipation(
-  //        0,
-  //        titleGroup1OfEventStore,
-  //        invitation_account
-  //      )
-  //     ).to.be.revertedWith(revertWord);
-  //   });
-
-  //   it('Should revert cannot invite duplicate address',  async () => {
-  //     await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
-
-  //     const invitation_account = await user2.getAddress();
-  //     await ct.connect(user1).inviteParticipation(
-  //       0,
-  //       titleGroup1OfEventStore,
-  //       invitation_account
-  //     );
-
-  //     const revertWord = 'Cannot invite duplicate address';
-  //     await expect(
-  //       ct.connect(user1).inviteParticipation(
-  //        0,
-  //        titleGroup1OfEventStore,
-  //        invitation_account
-  //      )
-  //     ).to.be.revertedWith(revertWord);
-  //   });
-
-
-  // });
 
   // describe('Leave Participation by index and title', () => {
   //   it('Should return leave participation success', async () => {
