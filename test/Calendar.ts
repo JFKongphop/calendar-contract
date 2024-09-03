@@ -155,8 +155,13 @@ describe('Calendar', async () => {
   });
 
   describe('Add Event Store all event data', () => {
+    beforeEach(async () => {
+      await ct
+        .connect(user1)
+        .createEventStore(titleGroup1OfEventStore, coverImageCID);
+    });
+
     it('Should return event store array', async () => {
-      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
       const id = Date.now();
 
       await ct.connect(user1).addEventSchedule(
@@ -169,9 +174,9 @@ describe('Calendar', async () => {
         month_range
       );
 
-      const eventStores: EventStoreRetrivedStructOutput = await ct.
-        connect(user1).
-        getEventSchedule(0, month_range);
+      const eventStores: EventStoreRetrivedStructOutput = await ct
+        .connect(user1)
+        .getEventSchedule(0, month_range);
 
       const eventSchedule = eventStores[2].map((event) => ({
         id: Number(event[0]),
@@ -204,7 +209,6 @@ describe('Calendar', async () => {
 
     it('Should revert dont have event store', async () => {
       const notFoundTitle = 'title group 0';
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID)
       await expect(ct.connect(user1).addEventSchedule(
         1,
         10,
