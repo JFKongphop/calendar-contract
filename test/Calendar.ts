@@ -414,7 +414,10 @@ describe('Calendar', async () => {
   describe('Invite participation by address', () => {
     let createdAddress: string, invitationAddress: string;
     beforeEach(async () => {
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
+      await ct
+        .connect(user1)
+        .createEventStore(titleGroup1OfEventStore, coverImageCID);
+
       await ct.connect(user1).addEventSchedule(
         1,
         10,
@@ -436,9 +439,10 @@ describe('Calendar', async () => {
     })
 
     it('Should return event participation title by invitation', async () => {
-      const eventsUser2: ParticipationStoreStructOutput[] = await ct.
-        connect(user2).
-        getParticipationTitle();
+      const eventsUser2: ParticipationStoreStructOutput[] = await ct
+        .connect(user2)
+        .getParticipationTitle();
+
       const actualResultEventTitle = eventsUser2.map((event) => ({
         title: event[0],
         store_index: Number(event[1]),
@@ -457,9 +461,10 @@ describe('Calendar', async () => {
     })
     
     it('Should return paticipation event schedule by invitation', async () => {
-      const eventStores: EventStoreRetrivedStructOutput = await ct.
-        connect(user2).
-        getParticipationStore(0, titleGroup1OfEventStore, month_range);
+      const eventStores: EventStoreRetrivedStructOutput = await ct
+        .connect(user2)
+        .getParticipationStore(0, titleGroup1OfEventStore, month_range);
+
       const eventSchedules = eventStores[2].map((event) => ({
         id: Number(event[0]),
         start_event: Number(event[1]),
