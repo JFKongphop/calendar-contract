@@ -91,9 +91,11 @@ describe('Calendar', async () => {
   // });
 
   describe('Create Event Store only title', () => {
-    it('Should return title of event store array', async () => {
-      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
+    beforeEach(async () => {
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
+    })
 
+    it('Should return title of event store array', async () => {
       const events: EventTitleStructOutput[] = await ct.connect(user1).getEventTitle();
       const actualResult = events.map((event) => ({
         title: event[0],
@@ -113,7 +115,6 @@ describe('Calendar', async () => {
     });
 
     it('Should return lenght of event title array', async () => {
-      await ct.createEventStore(title1EventSchedule, coverImageCID);
       const eventTitles: EventTitleStructOutput[] = await ct.connect(user1).getEventTitle();
       
       const lenghtOfEventStore = eventTitles.map((event) => ({
@@ -125,25 +126,31 @@ describe('Calendar', async () => {
     });
 
     it('Should revert of limitation require 5 event store', async () => {
-      for(let i = 0; i < 6; i++) {
-        await ct.createEventStore(`title ${i}`, coverImageCID);
+      for(let i = 0; i < 5; i++) {
+        await ct.connect(user1).createEventStore(`title ${i}`, coverImageCID);
       }
 
       const revertWord = 'Limitation to create event store';
-      await expect(ct.createEventStore('', coverImageCID)).to.be.revertedWith(revertWord);
+      await expect(ct
+        .connect(user1)
+        .createEventStore('', coverImageCID)
+      ).to.be.revertedWith(revertWord);
     });
 
     it('Should revert of invalid title', async () => {
       const revertWord = 'Invalid title';
-      await expect(ct.createEventStore('', coverImageCID)).to.be.revertedWith(revertWord);    
+      await expect(ct
+        .connect(user1)
+        .createEventStore('', coverImageCID)
+      ).to.be.revertedWith(revertWord);    
     });
 
     it('Should revert of limitation create event', async () => {
-      await ct.createEventStore(titleGroup1OfEventStore, coverImageCID);
-
       const revertWord = 'Cannot create duplicate name of event store';
-      await expect(ct.createEventStore(titleGroup1OfEventStore, coverImageCID))
-      .to.be.revertedWith(revertWord);      
+      await expect(ct.
+        connect(user1).
+        createEventStore(titleGroup1OfEventStore, coverImageCID)
+      ).to.be.revertedWith(revertWord);      
     });
   });
 
