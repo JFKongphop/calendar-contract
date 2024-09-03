@@ -350,7 +350,9 @@ describe('Calendar', async () => {
 
   describe("Delete Event Schedule by event id", () => {
     it("Should return delete event schedule", async () => {
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
+      await ct
+        .connect(user1)
+        .createEventStore(titleGroup1OfEventStore, coverImageCID);
 
       for (let i = 0; i < timelineValidTestCases.length; i++) {
         await ct.connect(user1).addEventSchedule(
@@ -364,11 +366,14 @@ describe('Calendar', async () => {
         );
       }
 
-      await ct.connect(user1).deleteEventSchedule(0, 1, month_range);
+      await ct
+        .connect(user1)
+        .deleteEventSchedule(0, 1, month_range);
 
-      const eventStores: EventStoreRetrivedStructOutput = await ct.
-        connect(user1).
-        getEventSchedule(0, month_range);      
+      const eventStores: EventStoreRetrivedStructOutput = await ct
+        .connect(user1)
+        .getEventSchedule(0, month_range);  
+
       const eventSchedule = eventStores[2].map((event) => ({
         id: Number(event[0]),
         start_event: Number(event[1]),
