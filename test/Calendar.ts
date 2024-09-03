@@ -392,67 +392,84 @@ describe('Calendar', async () => {
     });
   });
 
-  // describe('Invite participation by address', () => {
-  //   it('Should return invitation address', async () => {
-  //     await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
-  //     await ct.connect(user1).addEventSchedule(
-  //       1,
-  //       10,
-  //       20,
-  //       0,
-  //       titleGroup1OfEventStore,
-  //       title1EventSchedule,
-  //       month_range
-  //     );
+  describe('Invite participation by address', () => {
+    let createdAddress: string, invitationAddress: string;
+    beforeEach(async () => {
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
+      await ct.connect(user1).addEventSchedule(
+        1,
+        10,
+        20,
+        0,
+        titleGroup1OfEventStore,
+        title1EventSchedule,
+        month_range
+      );
 
-  //     const invitation_account = await user2.getAddress();
-  //     await ct.connect(user1).inviteParticipation(
-  //       0,
-  //       titleGroup1OfEventStore,
-  //       invitation_account
-  //     );
+      createdAddress = await user1.getAddress();
+      invitationAddress = await user2.getAddress();
 
-  //     const eventsUser2 = await ct.connect(user2).getParticipationTitle();
-  //     const actualResultUser2 = eventsUser2.map((event: any) => ({
-  //       title: event[0],
-  //       store_index: event[1].toNumber(),
-  //       createdBy: event[2]
-  //     }));
+      await ct.connect(user1).inviteParticipation(
+        0,
+        titleGroup1OfEventStore,
+        invitationAddress
+      );
+    })
 
-  //     const eventStores = await ct.connect(user2).getParticipationStore(
-  //       0, 
-  //       titleGroup1OfEventStore,
-  //       month_range, 
-  //     );
+    it('Should return event participation title by invitation', async () => {
+      const eventsUser2: ParticipationStoreStructOutput[] = await ct.
+        connect(user2).
+        getParticipationTitle();
+      const actualResultEventTitle = eventsUser2.map((event) => ({
+        title: event[0],
+        store_index: Number(event[1]),
+        createdBy: event[2]
+      }));
+  
+      const expectedResultUser2 = [
+        {
+          title: titleGroup1OfEventStore,
+          store_index: 0,
+          createdBy: createdAddress,
+        }
+      ];
+  
+      expect(expectedResultUser2).to.deep.equal(actualResultEventTitle);
+    })
+    
+    it('Should return paticipation event schedule by invitation', async () => {
+      const eventStores: EventStoreRetrivedStructOutput = await ct.
+        connect(user2).
+        getParticipationStore(0, titleGroup1OfEventStore, month_range);
+      const eventSchedules = eventStores[2].map((event) => ({
+        id: Number(event[0]),
+        start_event: Number(event[1]),
+        end_event: Number(event[2]),
+        title: event[3],
+      }));
 
-  //     const eventSchedules = eventStores[2].map((event: any) => ({
-  //       id: event[0].toNumber(),
-  //       start_event: event[1].toNumber(),
-  //       end_event: event[2].toNumber(),
-  //       title: event[3],
-  //     }));
+      const actualResult = {
+        title: eventStores[0],
+        accounts: eventStores[1],
+        eventSchedules
+      };
 
-  //     const actualResult = {
-  //       title: eventStores[0],
-  //       accounts: eventStores[1],
-  //       eventSchedules
-  //     };
+      const expectedResult = {
+        title: titleGroup1OfEventStore,
+        accounts: [invitationAddress],
+        eventSchedules: [
+          {
+            id: 1,
+            start_event: 10,
+            end_event: 20,
+            title: title1EventSchedule
+          }
+        ]
+      };
 
-  //     const expectedResult = {
-  //       title: titleGroup1OfEventStore,
-  //       accounts: [ '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' ],
-  //       eventSchedules: [
-  //         {
-  //           id: 1,
-  //           start_event: 10,
-  //           end_event: 20,
-  //           title: title1EventSchedule
-  //         }
-  //       ]
-  //     };
-
-  //     expect(expectedResult).to.deep.equal(actualResult);
-  //   });
+      expect(expectedResult).to.deep.equal(actualResult);
+    });
+  });
 
   //   it('Should revert invalid store index', async () => {
   //     await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
