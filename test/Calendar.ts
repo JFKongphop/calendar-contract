@@ -267,9 +267,14 @@ describe('Calendar', async () => {
   });
 
   describe("Edit Event Schedule data by id", () => {
+    beforeEach(async () => {
+      await ct
+        .connect(user1)
+        .createEventStore(titleGroup1OfEventStore, coverImageCID);
+    })
+    
     it('Should return event schedule data changded', async () => {
       const scheduleTitleChange = 'title changed 1'
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
       await ct.connect(user1).addEventSchedule(
         1,
         10,
@@ -321,7 +326,6 @@ describe('Calendar', async () => {
     });
 
     it('Should return reject with array out of bounds', async () => {
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
       await ct.connect(user1).addEventSchedule(
         1,
         10,
