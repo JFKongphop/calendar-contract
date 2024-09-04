@@ -545,7 +545,9 @@ describe('Calendar', async () => {
   describe('Leave Participation by index and title', () => {
     const store_index = 0;
     beforeEach(async () => {
-      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
+      await ct
+        .connect(user1)
+        .createEventStore(titleGroup1OfEventStore, coverImageCID);
       await ct.connect(user1).addEventSchedule(
         1,
         10,
@@ -565,7 +567,9 @@ describe('Calendar', async () => {
     })
 
     it('Should return empty participation from created after participation left', async () => {
-      await ct.connect(user2).leaveParticipationEvent(store_index, titleGroup1OfEventStore)
+      await ct
+        .connect(user2)
+        .leaveParticipationEvent(store_index, titleGroup1OfEventStore);
       const eventsUser: EventStoreRetrivedStructOutput = await ct
         .connect(user1)
         .getEventSchedule(store_index, month_range);
@@ -600,7 +604,9 @@ describe('Calendar', async () => {
     })
 
     it('Should return empty event schedule from invited participate', async () => {
-      await ct.connect(user2).leaveParticipationEvent(store_index, titleGroup1OfEventStore);
+      await ct
+        .connect(user2)
+        .leaveParticipationEvent(store_index, titleGroup1OfEventStore);
       const eventsUser2Leave: ParticipationStoreStructOutput[] = await ct
         .connect(user2)
         .getParticipationTitle();
