@@ -555,94 +555,35 @@ describe('Calendar', async () => {
         title1EventSchedule,
         month_range
       );
-    })
 
-    it('Should return valid participation', async () => {
-
-    })
-
-    it('Should return leave participation success', async () => {
-      const invitation_account = await user2.getAddress();
+      const invitationAddress = await user2.getAddress();
       await ct.connect(user1).inviteParticipation(
         store_index,
         titleGroup1OfEventStore,
-        invitation_account
+        invitationAddress
       );
+    })
 
-      const eventsUser2: ParticipationStoreStructOutput[] = await ct
-        .connect(user2)
-        .getParticipationTitle();
-      const actualResultUser2 = eventsUser2.map((event) => ({
-        title: event[0],
-        store_index: Number(event[1]),
-        createdBy: event[2]
-      }));
-
-      const eventStores: EventStoreRetrivedStructOutput = await ct
-        .connect(user2)
-        .getParticipationStore(
-          store_index, 
-          titleGroup1OfEventStore,
-          month_range, 
-        );
-
-      const eventSchedules = eventStores[2].map((event: any) => ({
-        id: Number(event[0]),
-        start_event: Number(event[1]),
-        end_event: Number(event[2]),
-        title: event[3],
-      }));
-
-      const actualResult = {
-        title: eventStores[0],
-        accounts: eventStores[1],
-        eventSchedules
-      };
-
-
-      // console.log('BEFORE LEAVE');
-      console.log(actualResultUser2);
-      console.log();
-      console.log(actualResult);
-
-      // LEAVE
-      await ct.connect(user2).leaveParticipationEvent(store_index, titleGroup1OfEventStore);
-      const eventsUser2Leave: ParticipationStoreStructOutput[] = await ct
-        .connect(user2)
-        .getParticipationTitle();
-      
-      const actualResultUser2Leave = eventsUser2Leave.map((event) => ({
-        title: event[0],
-        store_index: Number(event[1]),
-        createdBy: event[2]
-      }));
-
-      const eventStoresUser1: EventStoreRetrivedStructOutput = await ct
+    it('Should return empty participation from created after participation left', async () => {
+      await ct.connect(user2).leaveParticipationEvent(store_index, titleGroup1OfEventStore)
+      const eventsUser: EventStoreRetrivedStructOutput = await ct
         .connect(user1)
-        .getEventSchedule(0, month_range);
+        .getEventSchedule(store_index, month_range);
 
-      const eventScheduleUser1 = eventStores[2].map((event) => ({
+      const eventSchedule = eventsUser[2].map((event) => ({
         id: Number(event[0]),
         start_event: Number(event[1]),
         end_event: Number(event[2]),
         title: event[3],
       }));
-
-      const actualResultUser1 = {
-        title: eventStoresUser1[0],
-        accounts: eventStoresUser1[1],
-        eventSchedule: eventScheduleUser1
-      };
-
-      console.log(eventStoresUser1[1])
       
-      // console.log('AFTER LEAVE');
-      // console.log(actualResultUser2Leave);
-      // console.log();
-      // console.log(actualResultUser1);
+      const actualResult = {
+        title: titleGroup1OfEventStore,
+        accounts: eventsUser[1],
+        eventSchedule
+      }
 
-      const expetcedUser2Participation: unknown[] = [];
-      const expectedUser1AccountParticipation = {
+      const expectedUserAccountParticipation = {
         title: titleGroup1OfEventStore,
         accounts: [],
         eventSchedule: [
@@ -655,9 +596,25 @@ describe('Calendar', async () => {
         ]
       };
 
+      expect(expectedUserAccountParticipation).to.deep.equal(actualResult)      
+    })
+
+    it('Should return empty event schedule from invited participate', async () => {
+      await ct.connect(user2).leaveParticipationEvent(store_index, titleGroup1OfEventStore);
+      const eventsUser2Leave: ParticipationStoreStructOutput[] = await ct
+        .connect(user2)
+        .getParticipationTitle();
+      
+      const actualResultUser2Leave = eventsUser2Leave.map((event) => ({
+        title: event[0],
+        store_index: Number(event[1]),
+        createdBy: event[2]
+      }));
+
+      const expetcedUser2Participation: unknown[] = [];
+
       expect(expetcedUser2Participation).to.deep.equal(actualResultUser2Leave);
-      expect(expectedUser1AccountParticipation).to.deep.equal(actualResultUser1);
-    });
+    })
   });
 
   // describe('Delete event schedule by month range', () => {
