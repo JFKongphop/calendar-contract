@@ -34,7 +34,7 @@ describe('Calendar', async () => {
   let ct: Calendar;
 
   beforeEach(async () => {
-    [user1, user2] = await ethers.getSigners();
+    [user1, user2, user3] = await ethers.getSigners();
 
     const LibraryContract = await ethers.getContractFactory('Library');
     const libraryContract = await LibraryContract.deploy();
@@ -705,117 +705,130 @@ describe('Calendar', async () => {
     });
   });
 
-  // describe('Remove all accounts participation by store index', async () => {
-  //   it('Should return remove all account participation successfully', async () => {
-  //     const store_index = 0;
-  //     await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
-  //     await ct.connect(user1).addEventSchedule(
-  //       1,
-  //       10,
-  //       20,
-  //       0,
-  //       titleGroup1OfEventStore,
-  //       title1EventSchedule,
-  //       month_range
-  //     );
+  describe('Remove all accounts participation by store index', async () => {
+    it('Should return remove all account participation successfully', async () => {
+      const store_index = 0;
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
+      await ct.connect(user1).addEventSchedule(
+        1,
+        10,
+        20,
+        0,
+        titleGroup1OfEventStore,
+        title1EventSchedule,
+        month_range
+      );
 
-  //     const invitationAccount2 = await user2.getAddress();
-  //     const invitationAccount3 = await user3.getAddress();
-  //     await ct.connect(user1).inviteParticipation(
-  //       store_index,
-  //       titleGroup1OfEventStore,
-  //       invitationAccount2
-  //     );
-  //     await ct.connect(user1).inviteParticipation(
-  //       store_index,
-  //       titleGroup1OfEventStore,
-  //       invitationAccount3
-  //     );
+      const invitationAccount2 = await user2.getAddress();
+      const invitationAccount3 = await user3.getAddress();
+      await ct.connect(user1).inviteParticipation(
+        store_index,
+        titleGroup1OfEventStore,
+        invitationAccount2
+      );
+      await ct.connect(user1).inviteParticipation(
+        store_index,
+        titleGroup1OfEventStore,
+        invitationAccount3
+      );
       
-  //     const eventsUser1BeforeRemove = await ct.connect(user1).getEventTitle();
-  //     const actualResultUser1BeforeRemove = eventsUser1BeforeRemove.map((event: any) => ({
-  //       title: event[0],
-  //       coverImageCID: event[1],
-  //       parctitipationAmount: event[2].toNumber(),
-  //       eventParticipationAccounts: event[3]
-  //     }));
+      const eventsUser1BeforeRemove: EventTitleStructOutput[] = await ct
+        .connect(user1)
+        .getEventTitle();
+      const actualResultUser1BeforeRemove = eventsUser1BeforeRemove.map((event) => ({
+        title: event[0],
+        coverImageCID: event[1],
+        parctitipationAmount: Number(event[2]),
+        eventParticipationAccounts: event[3]
+      }));
 
-  //     const user2TitleBeforeRemove = await ct.connect(user2).getParticipationTitle();
-  //     const user2TitleActualBeforeRemove = user2TitleBeforeRemove.map((event: any) => ({
-  //       title: event[0],
-  //       store_index: event[1].toNumber(),
-  //       createdBy: event[2]
-  //     }));
-  //     const user3TitleBeforeRemove = await ct.connect(user3).getParticipationTitle();
-  //     const user3TitleActualBeforeRemove = user3TitleBeforeRemove.map((event: any) => ({
-  //       title: event[0],
-  //       store_index: event[1].toNumber(),
-  //       createdBy: event[2]
-  //     }));
+      const user2TitleBeforeRemove: ParticipationStoreStructOutput[] = await ct
+        .connect(user2)
+        .getParticipationTitle();
+      const user2TitleActualBeforeRemove = user2TitleBeforeRemove.map((event: any) => ({
+        title: event[0],
+        store_index: Number(event[1]),
+        createdBy: event[2]
+      }));
+    
+      const user3TitleBeforeRemove: ParticipationStoreStructOutput[] = await ct
+        .connect(user3)
+        .getParticipationTitle();
+      const user3TitleActualBeforeRemove = user3TitleBeforeRemove.map((event: any) => ({
+        title: event[0],
+        store_index: Number(event[1]),
+        createdBy: event[2]
+      }));
 
-  //     // Remove all participation accounts
-  //     await ct.connect(user1).removeAllAccountParticipations(0);
+      // Remove all participation accounts
+      await ct.connect(user1).removeAllAccountParticipations(0);
 
-  //     const eventsUser1AfterRemove = await ct.connect(user1).getEventTitle();
-  //     const actualResultUser1AfterRemove = eventsUser1AfterRemove.map((event: any) => ({
-  //       title: event[0],
-  //       coverImageCID: event[1],
-  //       parctitipationAmount: event[2].toNumber(),
-  //       eventParticipationAccounts: event[3]
-  //     }));
+      const eventsUser1AfterRemove: EventTitleStructOutput[] = await ct
+        .connect(user1)
+        .getEventTitle();
+      const actualResultUser1AfterRemove = eventsUser1AfterRemove.map((event) => ({
+        title: event[0],
+        coverImageCID: event[1],
+        parctitipationAmount: Number(event[2]),
+        eventParticipationAccounts: event[3]
+      }));
 
-  //     const user2TitleAfterRemove = await ct.connect(user2).getParticipationTitle();
-  //     const user2TitleActuaAfterRemove = user2TitleAfterRemove.map((event: any) => ({
-  //       title: event[0],
-  //       store_index: event[1].toNumber(),
-  //       createdBy: event[2]
-  //     }));
-  //     const user3TitleAfterRemove = await ct.connect(user3).getParticipationTitle();
-  //     const user3TitleActuaAfterRemove = user3TitleAfterRemove.map((event: any) => ({
-  //       title: event[0],
-  //       store_index: event[1].toNumber(),
-  //       createdBy: event[2]
-  //     }));
+      const user2TitleAfterRemove: ParticipationStoreStructOutput[] = await ct
+        .connect(user2)
+        .getParticipationTitle();
+      const user2TitleActuaAfterRemove = user2TitleAfterRemove.map((event) => ({
+        title: event[0],
+        store_index: Number(event[1]),
+        createdBy: event[2]
+      }));
+      const user3TitleAfterRemove: ParticipationStoreStructOutput[] = await ct
+        .connect(user3)
+        .getParticipationTitle();
+      const user3TitleActuaAfterRemove = user3TitleAfterRemove.map((event) => ({
+        title: event[0],
+        store_index: Number(event[1]),
+        createdBy: event[2]
+      }));
 
-  //     const expectedResultEventStoreTitleUser1 = [
-  //       { 
-  //         title: 'title group 1',
-  //         coverImageCID,
-  //         parctitipationAmount: 0,
-  //         eventParticipationAccounts: []
-  //       }
-  //     ];
-  //     const expectedResultParticipationTitleUser2: any[] = [];
-  //     const expectedResultParticipationTitleUser3: any[] = [];
+      const expectedResultEventStoreTitleUser1 = [
+        { 
+          title: 'title group 1',
+          coverImageCID,
+          parctitipationAmount: 0,
+          eventParticipationAccounts: []
+        }
+      ];
+      const expectedResultParticipationTitleUser2: any[] = [];
+      const expectedResultParticipationTitleUser3: any[] = [];
 
-  //     expect(expectedResultEventStoreTitleUser1).to.deep.equal(expectedResultEventStoreTitleUser1);
-  //     expect(expectedResultParticipationTitleUser2).to.deep.equal(user2TitleActuaAfterRemove);
-  //     expect(expectedResultParticipationTitleUser3).to.deep.equal(user3TitleActuaAfterRemove);
-  //   });
+      expect(expectedResultEventStoreTitleUser1).to.deep.equal(expectedResultEventStoreTitleUser1);
+      expect(expectedResultParticipationTitleUser2).to.deep.equal(user2TitleActuaAfterRemove);
+      expect(expectedResultParticipationTitleUser3).to.deep.equal(user3TitleActuaAfterRemove);
+    });
 
-  //   it('Should revert remove all account partcipation by invalid store index', async () => {
-  //     const store_index = 0;
-  //     await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
-  //     await ct.connect(user1).addEventSchedule(
-  //       1,
-  //       10,
-  //       20,
-  //       0,
-  //       titleGroup1OfEventStore,
-  //       title1EventSchedule,
-  //       month_range
-  //     );
+    it('Should revert remove all account partcipation by invalid store index', async () => {
+      const store_index = 0;
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
+      await ct.connect(user1).addEventSchedule(
+        1,
+        10,
+        20,
+        0,
+        titleGroup1OfEventStore,
+        title1EventSchedule,
+        month_range
+      );
 
-  //     const invitationAccount2 = await user2.getAddress();
-  //     await ct.connect(user1).inviteParticipation(
-  //       store_index,
-  //       titleGroup1OfEventStore,
-  //       invitationAccount2
-  //     );
+      const invitationAccount2 = await user2.getAddress();
+      await ct.connect(user1).inviteParticipation(
+        store_index,
+        titleGroup1OfEventStore,
+        invitationAccount2
+      );
 
-  //     await expect(
-  //       ct.connect(user1).removeAllAccountParticipations(1)
-  //     ).to.revertedWith('Invalid store index');
-  //   });
-  // });
+      await expect(
+        ct.connect(user1).removeAllAccountParticipations(1)
+      ).to.revertedWith('Invalid store index');
+    });
+  });
 })
