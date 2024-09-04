@@ -663,71 +663,47 @@ describe('Calendar', async () => {
     });
   });
 
-  // describe('Remove account participation by store_index and participation account', () => {
-    
-  //   it('Should return remove participation account', async () => {
-  //     console.log('test', 'wofjfjoew')
-  //     const store_index = 0;
-  //     await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
-  //     await ct.connect(user1).addEventSchedule(
-  //       1,
-  //       10,
-  //       20,
-  //       0,
-  //       titleGroup1OfEventStore,
-  //       title1EventSchedule,
-  //       month_range
-  //     );
+  describe('Remove account participation by store_index and participation account', () => {
+    it('Should return remove participation account', async () => {
+      const store_index = 0;
+      await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
+      await ct.connect(user1).addEventSchedule(
+        1,
+        10,
+        20,
+        0,
+        titleGroup1OfEventStore,
+        title1EventSchedule,
+        month_range
+      );
 
-  //     const invitation_account = await user2.getAddress();
-  //     await ct.connect(user1).inviteParticipation(
-  //       store_index,
-  //       titleGroup1OfEventStore,
-  //       invitation_account
-  //     );
-
-  //     const eventsUser1BeforeRemove = await ct.connect(user1).getEventTitle();
-  //     const actualResultUser1BeforeRemove = eventsUser1BeforeRemove.map((event: any) => ({
-  //       title: event[0],
-  //       coverImageCID: event[1],
-  //       parctitipationAmount: event[2].toNumber(),
-  //     }));
-  //     const user2TitleBeforeRemove = await ct.connect(user2).getParticipationTitle();
-  //     const user2TitleActualBeforeRemove = user2TitleBeforeRemove.map((event: any) => ({
-  //       title: event[0],
-  //       store_index: event[1].toNumber(),
-  //       createdBy: event[2]
-  //     }));
+      const invitationAddress = await user2.getAddress();
+      await ct.connect(user1).inviteParticipation(
+        store_index,
+        titleGroup1OfEventStore,
+        invitationAddress
+      );
       
-  //     // Remove participation by owner event
-  //     await ct.connect(user1).removeAccountParticipation(0, invitation_account);
+      await ct
+        .connect(user1)
+        .removeAccountParticipation(0, invitationAddress);
 
-  //     const eventsUser1AfterRemove = await ct.connect(user1).getEventTitle();
-  //     const actualResultUser1AfterRemove = eventsUser1AfterRemove.map((event: any) => ({
-  //       title: event[0],
-  //       coverImageCID: event[1],
-  //       parctitipationAmount: event[2].toNumber()
-  //     }));
-  //     const user2TitleAfterRemove = await ct.connect(user2).getParticipationTitle();
-  //     const user2TitleActuaAfterRemove = user2TitleAfterRemove.map((event: any) => ({
-  //       title: event[0],
-  //       store_index: event[1].toNumber(),
-  //       createdBy: event[2]
-  //     }));
+      const user2TitleAfterRemove: ParticipationStoreStructOutput[] = await ct
+        .connect(user2)
+        .getParticipationTitle();
+      
+      const user2TitleActuaAfterRemove = user2TitleAfterRemove.map((event: any) => ({
+        title: event[0],
+        store_index: Number(event[1]),
+        createdBy: event[2]
+      }));
 
-  //     const expectedResultEventStoreTitleUser1 = [
-  //       { 
-  //         title: 'title group 1', 
-  //         coverImageCID,
-  //         parctitipationAmount: 0 
-  //       }
-  //     ];
-  //     const expectedResultParticipationTitleUser2: any[] = [];
 
-  //     expect(actualResultUser1AfterRemove).to.deep.equal(expectedResultEventStoreTitleUser1);
-  //     expect(user2TitleActuaAfterRemove).to.deep.equal(expectedResultParticipationTitleUser2)
-  //   });
-  // });
+      const expectedResultParticipationTitleUser2: any[] = [];
+
+      expect(user2TitleActuaAfterRemove).to.deep.equal(expectedResultParticipationTitleUser2)
+    });
+  });
 
   // describe('Remove all accounts participation by store index', async () => {
   //   it('Should return remove all account participation successfully', async () => {
