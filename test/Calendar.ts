@@ -617,67 +617,51 @@ describe('Calendar', async () => {
     })
   });
 
-  // describe('Delete event schedule by month range', () => {
-  //   it('Should return delete event schedule by month range', async () => {
-  //     await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
-  //     await ct.connect(user1).addEventSchedule(
-  //       1,
-  //       10,
-  //       20,
-  //       0,
-  //       titleGroup1OfEventStore,
-  //       title1EventSchedule,
-  //       month_range
-  //     );
+  describe('Delete event schedule by month range', () => {
+    it('Should return delete event schedule by month range', async () => {
+      await ct
+        .connect(user1)
+        .createEventStore(titleGroup1OfEventStore, coverImageCID);
+      await ct.connect(user1).addEventSchedule(
+        1,
+        10,
+        20,
+        0,
+        titleGroup1OfEventStore,
+        title1EventSchedule,
+        month_range
+      );
 
-  //     const eventStoresBeforeDelete = await ct.connect(user1).getEventSchedule(0, month_range);      
-  //     const eventScheduleBeforeDelete = eventStoresBeforeDelete[2].map((event: any) => ({
-  //       id: event[0].toNumber(),
-  //       start_event: event[1].toNumber(),
-  //       end_event: event[2].toNumber(),
-  //       title: event[3],
-  //       description: event[4]
-  //     }));
-  //     const actualResultBeforeDelete = {
-  //       title: eventStoresBeforeDelete[0],
-  //       accounts: eventStoresBeforeDelete[1],
-  //       eventSchedule: eventScheduleBeforeDelete
-  //     };
+      await ct
+        .connect(user1)
+        .deleteEventScheduleMonth(0, month_range);
 
-  //     // console.log('BEFORE DELETE');
-  //     // console.log(actualResultBeforeDelete)
-  //     // console.log('AFTER DELETE');
-  //     await ct.connect(user1).deleteEventScheduleMonth(0, month_range);
+      const eventsUser: EventStoreRetrivedStructOutput = await ct
+        .connect(user1)
+        .getEventSchedule(0, month_range);   
+      
+      const eventSchedule = eventsUser[2].map((event: any) => ({
+        id: Number(event[0]),
+        start_event: Number(event[1]),
+        end_event: Number(event[2]),
+        title: event[3],
+      }));
 
-  //     const eventStoresAfterDelete = await ct.connect(user1).getEventSchedule(0, month_range);      
-  //     const eventScheduleAfterDelete = eventStoresAfterDelete[2].map((event: any) => ({
-  //       id: event[0].toNumber(),
-  //       start_event: event[1].toNumber(),
-  //       end_event: event[2].toNumber(),
-  //       title: event[3],
-  //     }));
-  //     const actualResultAfterDelete = {
-  //       title: eventStoresAfterDelete[0],
-  //       accounts: eventStoresAfterDelete[1],
-  //       eventSchedule: eventScheduleAfterDelete
-  //     };
+      const actualResultAfterDelete = {
+        title: eventsUser[0],
+        accounts: eventsUser[1],
+        eventSchedule,
+      };
 
-  //     const extectedResultAfterDeleted = { 
-  //       title: titleGroup1OfEventStore, 
-  //       accounts: [], 
-  //       eventSchedule: [] 
-  //     };
+      const extectedResultAfterDeleted = { 
+        title: titleGroup1OfEventStore, 
+        accounts: [], 
+        eventSchedule: [] 
+      };
 
-  //     expect(extectedResultAfterDeleted).to.deep.equal(actualResultAfterDelete);
-  //   });
-
-  //   it('Should revert invalid store index', async () => {
-  //     const rejectWord = 'Arithmetic operation underflowed or overflowed outside of an unchecked block';
-  //     await expect(
-  //       ct.connect(user1).deleteEventScheduleMonth(1, month_range)
-  //     ).to.be.rejectedWith(rejectWord);
-  //   });
-  // });
+      expect(extectedResultAfterDeleted).to.deep.equal(actualResultAfterDelete);
+    });
+  });
 
   // describe('Remove account participation by store_index and participation account', () => {
     
