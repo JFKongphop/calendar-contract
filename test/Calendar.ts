@@ -50,46 +50,6 @@ describe('Calendar', async () => {
     ct.deploymentTransaction()
   })
 
-  // it('Should test', async () => {
-  //   await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
-
-  //   const events = await ct.connect(user2).getEventTitle();
-  //   const actualResult = events.map((event: any) => ({
-  //     title: event[0],
-  //     coverImageCID: event[1],
-  //     parctitipationAmount: Number(event[2])
-  //   }));
-
-  //   console.log(actualResult)
-
-  //   // const eventExpected = [
-  //   //   {
-  //   //     title: titleGroup1OfEventStore, 
-  //   //     coverImageCID,
-  //   //     parctitipationAmount: 0 
-  //   //   }
-  //   // ];
-
-  //   // expect(eventExpected).to.deep.equal(actualResult) 
-  // })
-
-  // beforeEach(async () => {
-  //   [user1, user2, user3] = await ethers.getSigners();
-
-  //   const CompareLibrary = await ethers.getContractFactory('Library');
-  //   const compareLibrary = await CompareLibrary.deploy();
-  //   await compareLibrary.deployed();
-
-  //   const CalendarContract = await ethers.getContractFactory('Calendar', {
-  //     libraries: {
-  //       Library: compareLibrary.address
-  //     },
-  //   });
-    
-  //   ct = await CalendarContract.deploy();
-  //   await ct.deployed();
-  // });
-
   describe('Create Event Store only title', () => {
     beforeEach(async () => {
       await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
