@@ -510,35 +510,29 @@ describe('Calendar', async () => {
         month_range
       );
 
-      await expect(
-        ct.connect(user1).inviteParticipation(
-          1,
-          titleGroup1OfEventStore,
-          invitationAddress
-        )
-      ).to.be.revertedWith('Invalid store index');
+      await expect(ct.connect(user1).inviteParticipation(
+        1,
+        titleGroup1OfEventStore,
+        invitationAddress
+      )).to.be.revertedWith('Invalid store index');
     });
 
     it('Should revert cannot invite owner', async () => {
       const revertWord = 'Cannot invite owner';
-      await expect(
-        ct.connect(user1).inviteParticipation(
-         0,
-         titleGroup1OfEventStore,
-         createdAddress
-       )
-      ).to.be.revertedWith(revertWord);
+      await expect(ct.connect(user1).inviteParticipation(
+        0,
+        titleGroup1OfEventStore,
+        createdAddress
+      )).to.be.revertedWith(revertWord);
     });
 
     it('Should revert cannot invite duplicate address',  async () => {
       const revertWord = 'Cannot invite duplicate address';
-      await expect(
-        ct.connect(user1).inviteParticipation(
-         0,
-         titleGroup1OfEventStore,
-         invitationAddress
-       )
-      ).to.be.revertedWith(revertWord);
+      await expect(ct.connect(user1).inviteParticipation(
+        0,
+        titleGroup1OfEventStore,
+        invitationAddress
+      )).to.be.revertedWith(revertWord);
     });
   });
 
