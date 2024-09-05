@@ -747,29 +747,10 @@ describe('Calendar', async () => {
       expect(expectedResult).to.deep.equal(actualResult);
     });
 
-    // it('Should revert remove all account partcipation by invalid store index', async () => {
-    //   const store_index = 0;
-    //   await ct.connect(user1).createEventStore(titleGroup1OfEventStore, coverImageCID);
-    //   await ct.connect(user1).addEventSchedule(
-    //     1,
-    //     10,
-    //     20,
-    //     0,
-    //     titleGroup1OfEventStore,
-    //     title1EventSchedule,
-    //     month_range
-    //   );
-
-    //   const invitationAccount2 = await user2.getAddress();
-    //   await ct.connect(user1).inviteParticipation(
-    //     store_index,
-    //     titleGroup1OfEventStore,
-    //     invitationAccount2
-    //   );
-
-    //   await expect(
-    //     ct.connect(user1).removeAllAccountParticipations(1)
-    //   ).to.revertedWith('Invalid store index');
-    // });
+    it('Should revert remove all account partcipation by invalid store index', async () => {
+      await expect(
+        ct.connect(user1).removeAllAccountParticipations(1)
+      ).to.revertedWith('Invalid store index');
+    });
   });
 })
