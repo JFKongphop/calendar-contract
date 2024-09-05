@@ -720,77 +720,22 @@ describe('Calendar', async () => {
       const expectedResultParticipationTitleUser2: any[] = [];
       const expectedResultParticipationTitleUser3: any[] = [];
 
-      console.log(user2TitleActuaAfterRemove)
-
       expect(expectedResultParticipationTitleUser2).to.deep.equal(user2TitleActuaAfterRemove);
       expect(expectedResultParticipationTitleUser3).to.deep.equal(user3TitleActuaAfterRemove);
     })
 
     it('Should return empty participation account', async () => {
-      
-      const eventsUser1BeforeRemove: EventTitleStructOutput[] = await ct
+      const eventStores: EventTitleStructOutput[] = await ct
         .connect(user1)
         .getEventTitle();
-      const actualResultUser1BeforeRemove = eventsUser1BeforeRemove.map((event) => ({
+      const actualResult = eventStores.map((event) => ({
         title: event[0],
         coverImageCID: event[1],
         parctitipationAmount: Number(event[2]),
         eventParticipationAccounts: event[3]
       }));
 
-      console.log(actualResultUser1BeforeRemove)
-
-      const user2TitleBeforeRemove: ParticipationStoreStructOutput[] = await ct
-        .connect(user2)
-        .getParticipationTitle();
-      const user2TitleActualBeforeRemove = user2TitleBeforeRemove.map((event: any) => ({
-        title: event[0],
-        store_index: Number(event[1]),
-        createdBy: event[2]
-      }));
-
-      console.log(user2TitleActualBeforeRemove)
-    
-      const user3TitleBeforeRemove: ParticipationStoreStructOutput[] = await ct
-        .connect(user3)
-        .getParticipationTitle();
-      const user3TitleActualBeforeRemove = user3TitleBeforeRemove.map((event: any) => ({
-        title: event[0],
-        store_index: Number(event[1]),
-        createdBy: event[2]
-      }));
-
-      console.log(user3TitleActualBeforeRemove)
-
-      // Remove all participation accounts
-      
-
-      // const eventsUser1AfterRemove: EventTitleStructOutput[] = await ct
-      //   .connect(user1)
-      //   .getEventTitle();
-      // const actualResultUser1AfterRemove = eventsUser1AfterRemove.map((event) => ({
-      //   title: event[0],
-      //   coverImageCID: event[1],
-      //   parctitipationAmount: Number(event[2]),
-      //   eventParticipationAccounts: event[3]
-      // }));
-
-      const a: EventTitleStructOutput[] = await ct
-        .connect(user1)
-        .getEventTitle();
-      const b = a.map((event) => ({
-        title: event[0],
-        coverImageCID: event[1],
-        parctitipationAmount: Number(event[2]),
-        eventParticipationAccounts: event[3]
-      }));
-
-      console.log(b)
-
-
-      // console.log(user3TitleActuaAfterRemove)
-
-      const expectedResultEventStoreTitleUser1 = [
+      const expectedResult = [
         { 
           title: 'title group 1',
           coverImageCID,
@@ -799,9 +744,7 @@ describe('Calendar', async () => {
         }
       ];
 
-
-      // expect(expectedResultEventStoreTitleUser1).to.deep.equal(a);
-
+      expect(expectedResult).to.deep.equal(actualResult);
     });
 
     // it('Should revert remove all account partcipation by invalid store index', async () => {
