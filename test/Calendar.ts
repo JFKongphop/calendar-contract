@@ -107,9 +107,9 @@ describe('Calendar', async () => {
 
     it('Should revert of limitation create event', async () => {
       const revertWord = 'Cannot create duplicate name of event store';
-      await expect(ct.
-        connect(user1).
-        createEventStore(titleGroup1OfEventStore, coverImageCID)
+      await expect(ct
+        .connect(user1)
+        .createEventStore(titleGroup1OfEventStore, coverImageCID)
       ).to.be.revertedWith(revertWord);      
     });
   });
@@ -748,8 +748,9 @@ describe('Calendar', async () => {
     });
 
     it('Should revert remove all account partcipation by invalid store index', async () => {
-      await expect(
-        ct.connect(user1).removeAllAccountParticipations(1)
+      await expect(ct
+        .connect(user1)
+        .removeAllAccountParticipations(1)
       ).to.revertedWith('Invalid store index');
     });
   });
