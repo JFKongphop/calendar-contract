@@ -658,7 +658,6 @@ describe('Calendar', async () => {
         createdBy: event[2]
       }));
 
-
       const expectedResultParticipationTitleUser2: any[] = [];
 
       expect(user2TitleActuaAfterRemove).to.deep.equal(expectedResultParticipationTitleUser2)
